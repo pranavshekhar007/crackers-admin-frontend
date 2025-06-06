@@ -102,7 +102,7 @@ function CategoriesList() {
     if (confirmed) {
       try {
         let response = await deleteCategoryServ(id);
-        if (response?.data?.statusCode == "200") {
+        if (response?.data?.statusCode === "200") {
           toast?.success(response?.data?.message);
           handleGetCategoryFunc();
         }

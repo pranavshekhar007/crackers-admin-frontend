@@ -40,7 +40,7 @@ function Sidebar({ selectedMenu, selectedItem }) {
           path: "/product-list",
         },
         {
-          name: "Combo Products",
+          name: "Combo Packs",
           path: "/combo-product-list",
         },
         {
@@ -48,7 +48,7 @@ function Sidebar({ selectedMenu, selectedItem }) {
           path: "/add-product",
         },
         {
-          name: "Add Combo Product",
+          name: "Add Combo Packs",
           path: "/add-combo-product",
         },
         {

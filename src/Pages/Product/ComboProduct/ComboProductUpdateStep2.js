@@ -81,7 +81,7 @@ function ComboProductUpdateStep2() {
   };
   return (
     <div className="bodyContainer">
-      <Sidebar selectedMenu="Product Management" selectedItem="Add Combo Product" />
+      <Sidebar selectedMenu="Product Management" selectedItem="Add Combo Packs" />
       <div className="mainContainer">
         <TopNav />
         <div className="p-lg-4 p-md-3 p-2">
@@ -102,7 +102,7 @@ function ComboProductUpdateStep2() {
                     className="p-2 text-dark shadow rounded mb-4 "
                     style={{ background: "#05E2B5" }}
                   >
-                    Update Combo Product : Step 2/3
+                    Update Combo Packs : Step 2/3
                   </h4>
                 </div>
               </div>

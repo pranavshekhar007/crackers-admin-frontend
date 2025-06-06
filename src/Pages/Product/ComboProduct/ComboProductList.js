@@ -38,17 +38,17 @@ function ComboProductList() {
   };
   const staticsArr = [
     {
-      title: "Total Combo Products",
+      title: "Total Combo Packs",
       count: statics?.totalCount,
       bgColor: "#6777EF",
     },
     {
-      title: "Active Combo Products",
+      title: "Active Combo Packs",
       count: statics?.activeCount,
       bgColor: "#63ED7A",
     },
     {
-      title: "Inactive Combo Products",
+      title: "Inactive Combo Packs",
       count: statics?.inactiveCount,
       bgColor: "#FFA426",
     },
@@ -103,7 +103,7 @@ function ComboProductList() {
     <div className="bodyContainer">
       <Sidebar
         selectedMenu="Product Management"
-        selectedItem="Combo Products"
+        selectedItem="Combo Packs"
       />
       <div className="mainContainer">
         <TopNav />
@@ -139,7 +139,7 @@ function ComboProductList() {
           </div>
           <div className="row m-0 p-0 d-flex align-items-center my-4 topActionForm">
             <div className="col-lg-2 mb-2 col-md-12 col-12">
-              <h3 className="mb-0 text-bold text-secondary">Combo Products</h3>
+              <h3 className="mb-0 text-bold text-secondary">Combo Pack</h3>
             </div>
             <div className="col-lg-4 mb-2 col-md-12 col-12">
               <div>
@@ -173,7 +173,7 @@ function ComboProductList() {
                   style={{ background: "#c34b36" }}
                   onClick={() => navigate("/add-combo-product")}
                 >
-                  Add Combo Product
+                  Add Combo Pack
                 </button>
               </div>
             </div>
@@ -287,7 +287,7 @@ function ComboProductList() {
                                         }}
                                       >
                                         
-                                        {v?.pricing?.offerPrice}
+                                        {v?.pricing?.comboPrice}
                                       </div>
                                       <div
                                         style={{
@@ -298,7 +298,7 @@ function ComboProductList() {
                                         }}
                                       >
                                         {v?.pricing?.currency}{" "}
-                                        {v?.pricing?.actualPrice}
+                                        {v?.pricing?.offerPrice}
                                       </div>
                                     </div>
                                   ) : (

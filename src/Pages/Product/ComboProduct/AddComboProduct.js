@@ -21,9 +21,10 @@ function AddComboProduct() {
     placeholder: "Start typing...",
     height: "300px",
   };
-  const [maxComboLimit, setMaxComboLimit] = useState("");
+
   const [content, setContent] = useState("");
   const [formData, setFormData] = useState({
+    maxComboLimit: "",
     name: "",
     productId: [],
     pricing: {
@@ -72,6 +73,7 @@ function AddComboProduct() {
       const shortDescription = contentRef.current;
       if (formData?.createdByAdmin != "No") {
         finalPayload = {
+          maxComboLimit: formData?.maxComboLimit,
           name: formData?.name,
           productId: formData?.productId,
           pricing: {
@@ -83,11 +85,11 @@ function AddComboProduct() {
           gtin: formData?.gtin,
           shortDescription: shortDescription,
           createdBy: formData?.createdBy,
-          comboLimit: maxComboLimit,
         };
       }
       if (formData?.createdByAdmin == "No") {
         finalPayload = {
+          maxComboLimit: formData?.maxComboLimit,
           name: formData?.name,
           productId: formData?.productId,
           pricing: {
@@ -99,13 +101,13 @@ function AddComboProduct() {
           gtin: formData?.gtin,
           shortDescription: shortDescription,
           createdBy: formData?.createdBy,
-          comboLimit: maxComboLimit,
         };
       }
       let response = await addComboProductServ(finalPayload);
       if (response?.data?.statusCode == 200) {
         toast.success(response?.data?.message);
         setFormData({
+          maxComboLimit: "",
           name: "",
           productId: [],
           pricing: {
@@ -132,13 +134,17 @@ function AddComboProduct() {
 
   useEffect(() => {
     const totalMRP = formData.productId.reduce((total, item) => {
-      const product = productList.find((p) => p._id === item.product);
+      const product = productList.find(
+        (p) => p._id === item.product || p._id === item.value
+      );
       const qty = item.quantity || 1;
       return total + (product?.price || 0) * qty;
     }, 0);
 
     const totalDiscount = formData.productId.reduce((total, item) => {
-      const product = productList.find((p) => p._id === item.product);
+      const product = productList.find(
+        (p) => p._id === item.product || p._id === item.value
+      );
       const qty = item.quantity || 1;
       return total + (product?.discountedPrice || 0) * qty;
     }, 0);
@@ -157,7 +163,7 @@ function AddComboProduct() {
     <div className="bodyContainer">
       <Sidebar
         selectedMenu="Product Management"
-        selectedItem="Add Combo Product"
+        selectedItem="Add Combo Packs"
       />
       <div className="mainContainer">
         <TopNav />
@@ -179,7 +185,7 @@ function AddComboProduct() {
                     className="p-2 text-dark shadow rounded mb-4 "
                     style={{ background: "#05E2B5" }}
                   >
-                    Add Combo Product : Step 1/3
+                    Add Combo Pack : Step 1/3
                   </h4>
                 </div>
               </div>
@@ -188,12 +194,15 @@ function AddComboProduct() {
                   <label>Max Combo Limit (₹)</label>
                   <input
                     type="number"
-                    value={maxComboLimit}
+                    value={formData.maxComboLimit}
                     className="form-control"
                     onChange={(e) => {
                       const val = e.target.value;
                       if (!isNaN(val) && Number(val) >= 0) {
-                        setMaxComboLimit(val);
+                        setFormData((prev) => ({
+                          ...prev,
+                          maxComboLimit: val,
+                        }));
                       }
                     }}
                   />
@@ -327,12 +336,12 @@ function AddComboProduct() {
                   />
                 </div>
 
-                {maxComboLimit &&
+                {formData?.maxComboLimit &&
                   parseFloat(formData?.pricing?.offerPrice || 0) >
-                    parseFloat(maxComboLimit) && (
+                    parseFloat(formData?.maxComboLimit) && (
                     <div className="col-12 mb-2">
                       <div className="alert alert-danger py-2">
-                        ⚠️ You’ve exceeded the max limit of ₹{maxComboLimit}.
+                        ⚠️ You’ve exceeded the max limit of ₹{formData?.maxComboLimit}.
                         Reduce quantity or remove items.
                       </div>
                     </div>
@@ -354,7 +363,6 @@ function AddComboProduct() {
                     className="form-control"
                   />
                 </div>
-
 
                 <div className="col-12 mb-3">
                   <label>Short Description*</label>
@@ -381,9 +389,11 @@ function AddComboProduct() {
                       Saving ...
                     </button>
                   </div>
-                ) : formData?.name && formData?.gtin &&
-                (!maxComboLimit ||
-                  parseFloat(formData?.pricing?.offerPrice || 0) <= parseFloat(maxComboLimit)) ? (
+                ) : formData?.name &&
+                  formData?.gtin &&
+                  (!formData?.maxComboLimit ||
+                    parseFloat(formData?.pricing?.offerPrice || 0) <=
+                      parseFloat(formData?.maxComboLimit)) ? (
                   <div className="col-12">
                     <button
                       className="btn btn-primary w-100"

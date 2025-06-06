@@ -19,11 +19,11 @@ function ComboProductUpdateStep1() {
   const editor = useRef(null);
   const contentRef = useRef("");
 
-  const [maxComboLimit, setMaxComboLimit] = useState("");
   const [btnLoader, setBtnLoader] = useState(false);
   const [content, setContent] = useState("");
 
   const [formData, setFormData] = useState({
+    maxComboLimit: "",
     name: "",
     productId: [],
     pricing: {
@@ -68,6 +68,7 @@ function ComboProductUpdateStep1() {
       if (response?.data?.statusCode === 200) {
         const product = response?.data?.data;
         setFormData({
+          maxComboLimit: product?.maxComboLimit || "",
           name: product?.name || "",
           productId: product?.productId || [],
           pricing: {
@@ -103,6 +104,7 @@ function ComboProductUpdateStep1() {
       if (response?.data?.statusCode === 200) {
         toast.success("Combo Product Step 1 Updated Successfully!");
         setFormData({
+          maxComboLimit: "",
           name: "",
           productId: [],
           pricing: {
@@ -141,13 +143,17 @@ function ComboProductUpdateStep1() {
 
   useEffect(() => {
     const totalMRP = formData.productId.reduce((total, item) => {
-      const product = productList.find((p) => p._id === item.product);
+      const product = productList.find(
+        (p) => p._id === item.product || p._id === item.value
+      );
       const qty = item.quantity || 1;
       return total + (product?.price || 0) * qty;
     }, 0);
 
     const totalDiscount = formData.productId.reduce((total, item) => {
-      const product = productList.find((p) => p._id === item.product);
+      const product = productList.find(
+        (p) => p._id === item.product || p._id === item.value
+      );
       const qty = item.quantity || 1;
       return total + (product?.discountedPrice || 0) * qty;
     }, 0);
@@ -162,16 +168,11 @@ function ComboProductUpdateStep1() {
     }));
   }, [formData.productId, productList]);
 
-  const isComboPriceExceeded =
-    maxComboLimit &&
-    parseFloat(formData?.pricing?.comboPrice || 0) >
-      parseFloat(maxComboLimit || 0);
-
   return (
     <div className="bodyContainer">
       <Sidebar
         selectedMenu="Product Management"
-        selectedItem="Add Combo Product"
+        selectedItem="Add Combo Packs"
       />
       <div className="mainContainer">
         <TopNav />
@@ -192,16 +193,25 @@ function ComboProductUpdateStep1() {
                   className="p-2 text-dark shadow rounded mb-4"
                   style={{ background: "#05E2B5" }}
                 >
-                  Update Combo Product : Step 1/3
+                  Update Combo Pack : Step 1/3
                 </h4>
               </div>
               <div className="row">
                 <div className="col-6 mb-3">
                   <label>Max Combo Limit (₹)</label>
                   <input
-                    value={formData?.comboLimit || ""}
+                    type="number"
+                    value={formData.maxComboLimit}
                     className="form-control"
-                    readOnly
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (!isNaN(val) && Number(val) >= 0) {
+                        setFormData((prev) => ({
+                          ...prev,
+                          maxComboLimit: val,
+                        }));
+                      }
+                    }}
                   />
                 </div>
 
@@ -333,14 +343,17 @@ function ComboProductUpdateStep1() {
                   />
                 </div>
 
-                {isComboPriceExceeded && (
-                  <div className="col-12 mb-2">
-                    <div className="alert alert-danger py-2">
-                      ⚠️ Combo Price ₹{formData?.pricing?.comboPrice} exceeds
-                      the Max Combo Limit of ₹{maxComboLimit}.
+                {formData?.maxComboLimit &&
+                  parseFloat(formData?.pricing?.offerPrice || 0) >
+                    parseFloat(formData?.maxComboLimit) && (
+                    <div className="col-12 mb-2">
+                      <div className="alert alert-danger py-2">
+                        ⚠️ You’ve exceeded the max limit of ₹
+                        {formData?.maxComboLimit}. Reduce quantity or remove
+                        items.
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 <div className="col-4 mb-3">
                   <label>Combo Price</label>
@@ -372,18 +385,47 @@ function ComboProductUpdateStep1() {
                 </div>
 
                 <div className="col-12">
-                  <button
-                    className="btn btn-primary w-100"
-                    style={{
-                      background: "#61ce70",
-                      border: "none",
-                      borderRadius: "24px",
-                    }}
-                    onClick={updateComboProductFunc}
-                    disabled={btnLoader || isComboPriceExceeded}
-                  >
-                    {btnLoader ? "Saving..." : "Update & Continue"}
-                  </button>
+                  {btnLoader ? (
+                    <button
+                      className="btn btn-primary w-100"
+                      style={{
+                        background: "#05E2B5",
+                        border: "none",
+                        borderRadius: "24px",
+                        opacity: "0.6",
+                      }}
+                    >
+                      Saving ...
+                    </button>
+                  ) : formData?.name &&
+                    formData?.gtin &&
+                    (!formData?.maxComboLimit ||
+                      parseFloat(formData?.pricing?.offerPrice || 0) <=
+                        parseFloat(formData?.maxComboLimit)) ? (
+                    <button
+                      className="btn btn-primary w-100"
+                      style={{
+                        background: "#05E2B5",
+                        border: "none",
+                        borderRadius: "24px",
+                      }}
+                      onClick={updateComboProductFunc}
+                    >
+                      Update & Continue
+                    </button>
+                  ) : (
+                    <button
+                      className="btn btn-primary w-100"
+                      style={{
+                        background: "#ccc",
+                        border: "none",
+                        borderRadius: "24px",
+                      }}
+                      disabled
+                    >
+                      Update & Continue
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

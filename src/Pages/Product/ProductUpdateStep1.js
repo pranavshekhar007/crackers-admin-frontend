@@ -34,6 +34,7 @@ function ProductUpdateStep1() {
     categoryId: [],
     hsnCode: "",
     GTIN: "",
+    specialAppearance: [],
     shortDescription: "",
   });
 
@@ -103,6 +104,7 @@ function ProductUpdateStep1() {
           categoryId: product?.categoryId || [],
           hsnCode: product?.hsnCode || "",
           GTIN: product?.GTIN || "",
+          specialAppearance: product?.specialAppearance || [],
           shortDescription: product?.shortDescription || "",
         });
         setContent(product?.shortDescription || "");
@@ -137,6 +139,7 @@ function ProductUpdateStep1() {
           categoryId: [],
           hsnCode: "",
           GTIN: "",
+          specialAppearance: [],
           shortDescription: "",
         });
         navigate("/update-product-step2/" + response?.data?.data?._id);
@@ -148,6 +151,12 @@ function ProductUpdateStep1() {
     }
     setBtnLoader(false);
   };
+
+  const specialAppearanceOptions = [
+    { label: "daily sell", value: "daily sell" },
+    { label: "our shop", value: "our shop" },
+    { label: "new Arrivals", value: "new Arrivals" },
+  ];
 
   return (
     <div className="bodyContainer">
@@ -294,6 +303,27 @@ function ProductUpdateStep1() {
                         setFormData({ ...formData, GTIN: value });
                       }
                     }}
+                  />
+                </div>
+
+                <div className="col-6 mb-3">
+                  <label>Special Appearance</label>
+                  <Select
+                    isMulti
+                    options={specialAppearanceOptions}
+                    value={specialAppearanceOptions.filter((option) =>
+                      formData?.specialAppearance?.includes(option.value)
+                    )}
+                    onChange={(selectedOptions) =>
+                      setFormData({
+                        ...formData,
+                        specialAppearance: selectedOptions.map(
+                          (option) => option.value
+                        ),
+                      })
+                    }
+                    className="basic-multi-select"
+                    classNamePrefix="select"
                   />
                 </div>
 

@@ -34,6 +34,7 @@ function AddProduct() {
     categoryId: "",
     hsnCode: "",
     GTIN: "",
+    specialAppearance: [],
     shortDescription: "",
   });
   const [tags, setTags] = useState([]);
@@ -82,7 +83,6 @@ function AddProduct() {
     }
   };
 
-
   useEffect(() => {
     getTagListFunc();
     getProductListFunc();
@@ -104,6 +104,7 @@ function AddProduct() {
           categoryId: formData?.categoryId,
           hsnCode: formData?.hsnCode,
           GTIN: formData?.GTIN,
+          specialAppearance: formData?.specialAppearance,
           shortDescription: shortDescription,
         };
       }
@@ -117,6 +118,7 @@ function AddProduct() {
           madeIn: formData?.madeIn,
           hsnCode: formData?.hsnCode,
           GTIN: formData?.GTIN,
+          specialAppearance: formData?.specialAppearance,
           shortDescription: shortDescription,
           createdBy: formData?.createdBy,
         };
@@ -133,6 +135,7 @@ function AddProduct() {
           madeIn: "",
           hsnCode: "",
           GTIN: "",
+          specialAppearance: [],
           createdBy: "",
           createdByAdmin: "",
         });
@@ -147,6 +150,12 @@ function AddProduct() {
     }
     setLoader(false);
   };
+
+  const specialAppearanceOptions = [
+    { label: "daily sell", value: "daily sell" },
+    { label: "our shop", value: "our shop" },
+    { label: "new Arrivals", value: "new Arrivals" },
+  ];
 
   return (
     <div className="bodyContainer">
@@ -253,14 +262,16 @@ function AddProduct() {
                     onChange={(selectedOptions) =>
                       setFormData({
                         ...formData,
-                        categoryId: selectedOptions.map((option) => option.value),
+                        categoryId: selectedOptions.map(
+                          (option) => option.value
+                        ),
                       })
                     }
                     className="basic-multi-select"
                     classNamePrefix="select"
                   />
                 </div>
-              
+
                 <div className="col-6 mb-3">
                   <label>HSN Code*</label>
                   <input
@@ -295,7 +306,26 @@ function AddProduct() {
                         setFormData({ ...formData, GTIN: value });
                       }
                     }}
-                    
+                  />
+                </div>
+                <div className="col-6 mb-3">
+                  <label>Special Appearance</label>
+                  <Select
+                    isMulti
+                    options={specialAppearanceOptions}
+                    value={specialAppearanceOptions.filter((option) =>
+                      formData?.specialAppearance?.includes(option.value)
+                    )}
+                    onChange={(selectedOptions) =>
+                      setFormData({
+                        ...formData,
+                        specialAppearance: selectedOptions.map(
+                          (option) => option.value
+                        ),
+                      })
+                    }
+                    className="basic-multi-select"
+                    classNamePrefix="select"
                   />
                 </div>
 

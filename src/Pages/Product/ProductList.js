@@ -13,6 +13,7 @@ import "react-toastify/dist/ReactToastify.css";
 import moment from "moment";
 import NoRecordFound from "../../Components/NoRecordFound";
 import { useNavigate } from "react-router-dom";
+import { getCategoryServ } from "../../services/category.service";
 function ProductList() {
   const navigate = useNavigate();
   const [list, setList] = useState([]);
@@ -22,6 +23,7 @@ function ProductList() {
     status: "",
     pageNo: 1,
     pageCount: 10,
+    categoryId: "",
     sortByField: "",
   });
   const [showSkelton, setShowSkelton] = useState(false);
@@ -99,6 +101,41 @@ function ProductList() {
       }
     }
   };
+
+  const [categoryList, setCategoryList] = useState([]);
+
+  useEffect(() => {
+    handleGetProductFunc();
+  }, [payload]);
+
+  useEffect(() => {
+    getCategoryList();
+  }, []);
+
+  const getCategoryList = async () => {
+    try {
+      let res = await getCategoryServ();
+      setCategoryList(res?.data?.data || []);
+    } catch (err) {
+      console.log("Category fetch failed");
+    }
+  };
+
+  const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+    if (statics?.totalCount && payload.pageCount) {
+      const pages = Math.ceil(statics.totalCount / payload.pageCount);
+      setTotalPages(pages);
+    }
+  }, [statics, payload.pageCount]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setPayload({ ...payload, pageNo: newPage });
+    }
+  };
+
   return (
     <div className="bodyContainer">
       <Sidebar selectedMenu="Product Management" selectedItem="Products" />
@@ -138,7 +175,7 @@ function ProductList() {
             <div className="col-lg-2 mb-2 col-md-12 col-12">
               <h3 className="mb-0 text-bold text-secondary">Products</h3>
             </div>
-            <div className="col-lg-4 mb-2 col-md-12 col-12">
+            <div className="col-lg-3 mb-2 col-md-12 col-12">
               <div>
                 <input
                   className="form-control borderRadius24"
@@ -149,7 +186,7 @@ function ProductList() {
                 />
               </div>
             </div>
-            <div className="col-lg-3 mb-2  col-md-6 col-12">
+            <div className="col-lg-2 mb-2  col-md-6 col-12">
               <div>
                 <select
                   className="form-control borderRadius24"
@@ -163,6 +200,23 @@ function ProductList() {
                 </select>
               </div>
             </div>
+            <div className="col-lg-2 mb-2 col-md-6 col-12">
+              <select
+                className="form-control borderRadius24"
+                onChange={(e) =>
+                  setPayload({ ...payload, categoryId: e.target.value })
+                }
+                value={payload.categoryId}
+              >
+                <option value="">Select Category</option>
+                {categoryList?.map((cat) => (
+                  <option key={cat._id} value={cat._id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div className="col-lg-3 mb-2 col-md-6 col-12">
               <div>
                 <button
@@ -189,10 +243,10 @@ function ProductList() {
                       </th>
                       <th className="text-center py-3">Name</th>
                       <th className="text-center py-3">Image</th>
-                      
+
                       <th className="text-center py-3">Tax</th>
                       <th className="text-center py-3">Category</th>
-                     
+
                       <th className="text-center py-3">HSN Code</th>
                       <th className="text-center py-3">Price</th>
                       <th className="text-center py-3">Stock</th>
@@ -241,7 +295,12 @@ function ProductList() {
                           return (
                             <>
                               <tr>
-                                <td className="text-center">{i + 1}</td>
+                                <td className="text-center">
+                                  {(payload.pageNo - 1) * payload.pageCount +
+                                    i +
+                                    1}
+                                </td>
+
                                 <td className="font-weight-600 text-center">
                                   {v?.name}
                                 </td>
@@ -251,9 +310,7 @@ function ProductList() {
                                     style={{ height: "30px" }}
                                   />
                                 </td>
-                              
 
-                               
                                 <td className="text-center">{v?.tax}</td>
                                 <td className="text-center">
                                   {Array.isArray(v?.categoryId)
@@ -262,8 +319,6 @@ function ProductList() {
                                         .join(", ")
                                     : v?.categoryId?.name || "-"}
                                 </td>
-
-                                
 
                                 <td className="text-center">{v?.hsnCode}</td>
                                 <td className="text-center">
@@ -276,7 +331,6 @@ function ProductList() {
                                           color: "#28a745",
                                         }}
                                       >
-                                        
                                         {v?.discountedPrice}
                                       </div>
                                       <div
@@ -301,7 +355,7 @@ function ProductList() {
                                     </div>
                                   )}
                                 </td>
-                                
+
                                 <td className="text-center">
                                   {v?.stockQuantity}
                                 </td>
@@ -372,6 +426,95 @@ function ProductList() {
                         })}
                   </tbody>
                 </table>
+                <div className="d-flex flex-column flex-md-row justify-content-center align-items-center gap-5 px-3 py-3 mt-4">
+                  <div className="d-flex align-items-center gap-2">
+                    <span className="fw-semibold text-secondary">Show</span>
+                    <select
+                      className="form-select form-select-sm custom-select"
+                      value={payload.pageCount}
+                      onChange={(e) =>
+                        setPayload({
+                          ...payload,
+                          pageCount: parseInt(e.target.value),
+                          pageNo: 1,
+                        })
+                      }
+                    >
+                      {[10, 25, 50, 100].map((v) => (
+                        <option key={v} value={v}>
+                          {v}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <nav>
+                    <ul className="pagination pagination-sm mb-0 custom-pagination">
+                      <li
+                        className={`page-item ${
+                          payload.pageNo === 1 ? "disabled" : ""
+                        }`}
+                      >
+                        <button
+                          className="page-link"
+                          onClick={() => handlePageChange(payload.pageNo - 1)}
+                        >
+                          &lt;
+                        </button>
+                      </li>
+
+                      {[...Array(totalPages)].map((_, i) => {
+                        const page = i + 1;
+                        if (
+                          page === 1 ||
+                          page === totalPages ||
+                          (page >= payload.pageNo - 1 &&
+                            page <= payload.pageNo + 1)
+                        ) {
+                          return (
+                            <li
+                              key={page}
+                              className={`page-item ${
+                                payload.pageNo === page ? "active" : ""
+                              }`}
+                            >
+                              <button
+                                className="page-link"
+                                onClick={() => handlePageChange(page)}
+                              >
+                                {page}
+                              </button>
+                            </li>
+                          );
+                        } else if (
+                          (page === payload.pageNo - 2 && page > 2) ||
+                          (page === payload.pageNo + 2 && page < totalPages - 1)
+                        ) {
+                          return (
+                            <li key={page} className="page-item disabled">
+                              <span className="page-link">...</span>
+                            </li>
+                          );
+                        }
+                        return null;
+                      })}
+
+                      <li
+                        className={`page-item ${
+                          payload.pageNo === totalPages ? "disabled" : ""
+                        }`}
+                      >
+                        <button
+                          className="page-link"
+                          onClick={() => handlePageChange(payload.pageNo + 1)}
+                        >
+                          &gt;
+                        </button>
+                      </li>
+                    </ul>
+                  </nav>
+                </div>
+
                 {list.length == 0 && !showSkelton && <NoRecordFound />}
               </div>
             </div>

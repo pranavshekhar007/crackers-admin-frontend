@@ -79,6 +79,16 @@ function Sidebar({ selectedMenu, selectedItem }) {
         },
       ],
     },
+    {
+      menuIcon: "https://cdn-icons-png.flaticon.com/128/535/535188.png",
+      menu: "Location Management",
+      subMenu: [
+        {
+          name: "States",
+          path: "/user-list",
+        },
+      ],
+    },
     
     {
       menuIcon: "https://cdn-icons-png.flaticon.com/128/1601/1601521.png",

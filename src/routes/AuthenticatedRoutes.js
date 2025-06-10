@@ -41,6 +41,7 @@ import ComboProductUpdateStep3 from '../Pages/Product/ComboProduct/ComboProductU
 import BulkOrderList from '../Pages/Order/BulkOrderList';
 import UserList from '../Pages/User/UserList';
 import VendorList from '../Pages/Vendor/VendorList';
+import OrderDetails from '../Pages/Order/OrderDetails';
 
 function AuthenticatedRoutes() {
   return (
@@ -105,6 +106,8 @@ function AuthenticatedRoutes() {
         <Route path="/bulk-order-list" element={<BulkOrderList />}/>
         <Route path="/orders" element={<OrderList />} />
         <Route path="/orders/:status" element={<OrderList />} />
+        <Route path="/order-details" element={<OrderDetails />} />
+        
 
 
         {/* Policy */}

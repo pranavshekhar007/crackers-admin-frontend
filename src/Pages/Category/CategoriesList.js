@@ -13,6 +13,8 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import moment from "moment";
 import NoRecordFound from "../../Components/NoRecordFound";
+import Modal from "react-bootstrap/Modal";
+import { getProductsByCategoryServ } from "../../services/product.services";
 function CategoriesList() {
   const [list, setList] = useState([]);
   const [statics, setStatics] = useState(null);
@@ -67,10 +69,10 @@ function CategoriesList() {
   const handleAddCategoryFunc = async () => {
     setIsLoading(true);
     const formData = new FormData();
-    if(addFormData.image){
+    if (addFormData.image) {
       formData.append("image", addFormData?.image);
     }
-    formData.append("name", addFormData?.name);  
+    formData.append("name", addFormData?.name);
     formData.append("status", addFormData?.status);
     formData.append("specialApperence", addFormData?.specialApperence);
     try {
@@ -154,6 +156,37 @@ function CategoriesList() {
     }
     setIsLoading(false);
   };
+
+  const [showModal, setShowModal] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [productsByCategory, setProductsByCategory] = useState([]);
+
+  const handleViewProducts = async (category) => {
+    try {
+      setSelectedCategory(category);
+      const res = await getProductsByCategoryServ(category._id);
+      setProductsByCategory(res?.data?.data || []);
+      setShowModal(true);
+    } catch (error) {
+      toast.error("Failed to fetch products.");
+    }
+  };
+
+  const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+    if (statics?.totalCount && payload.pageCount) {
+      const pages = Math.ceil(statics.totalCount / payload.pageCount);
+      setTotalPages(pages);
+    }
+  }, [statics, payload.pageCount]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setPayload({ ...payload, pageNo: newPage });
+    }
+  };
+
   return (
     <div className="bodyContainer">
       <Sidebar selectedMenu="Product Management" selectedItem="Categories" />
@@ -291,7 +324,9 @@ function CategoriesList() {
                           return (
                             <>
                               <tr>
-                                <td className="text-center">{i + 1}</td>
+                                <td className="text-center">
+                                  {(payload.pageNo - 1) * payload.pageCount + i + 1}
+                                </td>
                                 <td className="text-center">
                                   <img
                                     src={v?.image}
@@ -319,7 +354,9 @@ function CategoriesList() {
                                   )}
                                 </td>
                                 <td className="font-weight-600 text-center">
-                                  {v?.specialApperence ? v?.specialApperence :"None"}
+                                  {v?.specialApperence
+                                    ? v?.specialApperence
+                                    : "None"}
                                 </td>
                                 <td className="text-center">
                                   {moment(v?.createdAt).format("DD-MM-YY")}
@@ -333,7 +370,7 @@ function CategoriesList() {
                                         imgPrev: v?.image,
                                         status: v?.status,
                                         _id: v?._id,
-                                        specialApperence:v?.specialApperence
+                                        specialApperence: v?.specialApperence,
                                       });
                                     }}
                                     className="btn btn-info mx-2 text-light shadow-sm"
@@ -348,14 +385,109 @@ function CategoriesList() {
                                   >
                                     Delete
                                   </a>
+                                  <button
+                                    className="btn btn-info text-light btn-sm"
+                                    onClick={() => handleViewProducts(v)}
+                                  >
+                                    View Products
+                                  </button>
                                 </td>
                               </tr>
-                              <div className="py-2"></div>
                             </>
                           );
                         })}
                   </tbody>
                 </table>
+
+                <div className="d-flex flex-column flex-md-row justify-content-center align-items-center gap-5 px-3 py-3 mt-4">
+                  <div className="d-flex align-items-center gap-2">
+                    <span className="fw-semibold text-secondary">Show</span>
+                    <select
+                      className="form-select form-select-sm custom-select"
+                      value={payload.pageCount}
+                      onChange={(e) =>
+                        setPayload({
+                          ...payload,
+                          pageCount: parseInt(e.target.value),
+                          pageNo: 1,
+                        })
+                      }
+                    >
+                      {[10, 25, 50, 100].map((v) => (
+                        <option key={v} value={v}>
+                          {v}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <nav>
+                    <ul className="pagination pagination-sm mb-0 custom-pagination">
+                      <li
+                        className={`page-item ${
+                          payload.pageNo === 1 ? "disabled" : ""
+                        }`}
+                      >
+                        <button
+                          className="page-link"
+                          onClick={() => handlePageChange(payload.pageNo - 1)}
+                        >
+                          &lt;
+                        </button>
+                      </li>
+
+                      {[...Array(totalPages)].map((_, i) => {
+                        const page = i + 1;
+                        if (
+                          page === 1 ||
+                          page === totalPages ||
+                          (page >= payload.pageNo - 1 &&
+                            page <= payload.pageNo + 1)
+                        ) {
+                          return (
+                            <li
+                              key={page}
+                              className={`page-item ${
+                                payload.pageNo === page ? "active" : ""
+                              }`}
+                            >
+                              <button
+                                className="page-link"
+                                onClick={() => handlePageChange(page)}
+                              >
+                                {page}
+                              </button>
+                            </li>
+                          );
+                        } else if (
+                          (page === payload.pageNo - 2 && page > 2) ||
+                          (page === payload.pageNo + 2 && page < totalPages - 1)
+                        ) {
+                          return (
+                            <li key={page} className="page-item disabled">
+                              <span className="page-link">...</span>
+                            </li>
+                          );
+                        }
+                        return null;
+                      })}
+
+                      <li
+                        className={`page-item ${
+                          payload.pageNo === totalPages ? "disabled" : ""
+                        }`}
+                      >
+                        <button
+                          className="page-link"
+                          onClick={() => handlePageChange(payload.pageNo + 1)}
+                        >
+                          &gt;
+                        </button>
+                      </li>
+                    </ul>
+                  </nav>
+                </div>
+
                 {list.length == 0 && !showSkelton && <NoRecordFound />}
               </div>
             </div>
@@ -386,7 +518,7 @@ function CategoriesList() {
                       image: "",
                       status: "",
                       show: false,
-                      specialApperence:""
+                      specialApperence: "",
                     })
                   }
                 />
@@ -459,21 +591,16 @@ function CategoriesList() {
                     >
                       <option value="">Select Status</option>
                       <option value="Home">Home</option>
-                      
                     </select>
                     <button
                       className="btn btn-success w-100 mt-4"
                       onClick={
-                        addFormData?.name &&
-                        addFormData?.status &&
-                        !isLoading
+                        addFormData?.name && addFormData?.status && !isLoading
                           ? handleAddCategoryFunc
                           : undefined
                       }
                       disabled={
-                        !addFormData?.name ||
-                        !addFormData?.status ||
-                        isLoading
+                        !addFormData?.name || !addFormData?.status || isLoading
                       }
                       style={{
                         opacity:
@@ -518,7 +645,7 @@ function CategoriesList() {
                       name: "",
                       image: "",
                       status: "",
-                      specialApperence:"",
+                      specialApperence: "",
                       _id: "",
                     })
                   }
@@ -593,7 +720,6 @@ function CategoriesList() {
                     >
                       <option value="">Select Status</option>
                       <option value="Home">Home</option>
-                      
                     </select>
                     {editFormData?.name && editFormData?.status ? (
                       <button
@@ -619,6 +745,90 @@ function CategoriesList() {
         </div>
       )}
       {editFormData?._id && <div className="modal-backdrop fade show"></div>}
+
+      <Modal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        size="lg"
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Products under {selectedCategory?.name}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {productsByCategory.length > 0 ? (
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th>Image</th>
+                  <th>Price</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {productsByCategory.map((product, index) => (
+                  <tr key={product._id}>
+                    <td>{index + 1}</td>
+                    <td>{product.name}</td>
+                    <td>
+                      <img
+                        src={product.productHeroImage}
+                        style={{ height: "40px" }}
+                        alt={product.name}
+                      />
+                    </td>
+                    <td className="text-center">
+                      {product.price ? (
+                        <div style={{ lineHeight: "1.2" }}>
+                          <div
+                            style={{
+                              fontWeight: "bold",
+                              fontSize: "16px",
+                              color: "#28a745",
+                            }}
+                          >
+                            {product.discountedPrice}
+                          </div>
+                          <div
+                            style={{
+                              textDecoration: "line-through",
+                              color: "#888",
+                              fontSize: "13px",
+                              marginTop: "4px",
+                            }}
+                          >
+                            {product.price}
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          style={{
+                            fontWeight: "bold",
+                            fontSize: "16px",
+                          }}
+                        >
+                          {product.price}
+                        </div>
+                      )}
+                    </td>
+                    <td>
+                      {product.status ? (
+                        <span className="badge bg-success">Active</span>
+                      ) : (
+                        <span className="badge bg-warning">Inactive</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p>No products found for this category.</p>
+          )}
+        </Modal.Body>
+      </Modal>
     </div>
   );
 }

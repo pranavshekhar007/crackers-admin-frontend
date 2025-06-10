@@ -139,6 +139,21 @@ function TagList() {
     }
     setIsLoading(false);
   };
+
+   const [totalPages, setTotalPages] = useState(1);
+    
+      useEffect(() => {
+        if (statics?.totalCount && payload.pageCount) {
+          const pages = Math.ceil(statics.totalCount / payload.pageCount);
+          setTotalPages(pages);
+        }
+      }, [statics, payload.pageCount]);
+    
+      const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+          setPayload({ ...payload, pageNo: newPage });
+        }
+      };
   return (
     <div className="bodyContainer">
       <Sidebar selectedMenu="Product Management" selectedItem="Tags" />
@@ -271,7 +286,9 @@ function TagList() {
                           return (
                             <>
                               <tr>
-                                <td className="text-center">{i + 1}</td>
+                              <td className="text-center">
+                                  {(payload.pageNo - 1) * payload.pageCount + i + 1}
+                                </td>
 
                                 <td className="font-weight-600 text-center">
                                   {v?.name}
@@ -333,6 +350,96 @@ function TagList() {
                         })}
                   </tbody>
                 </table>
+
+                <div className="d-flex flex-column flex-md-row justify-content-center align-items-center gap-5 px-3 py-3 mt-4">
+                  <div className="d-flex align-items-center gap-2">
+                    <span className="fw-semibold text-secondary">Show</span>
+                    <select
+                      className="form-select form-select-sm custom-select"
+                      value={payload.pageCount}
+                      onChange={(e) =>
+                        setPayload({
+                          ...payload,
+                          pageCount: parseInt(e.target.value),
+                          pageNo: 1,
+                        })
+                      }
+                    >
+                      {[10, 25, 50, 100].map((v) => (
+                        <option key={v} value={v}>
+                          {v}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <nav>
+                    <ul className="pagination pagination-sm mb-0 custom-pagination">
+                      <li
+                        className={`page-item ${
+                          payload.pageNo === 1 ? "disabled" : ""
+                        }`}
+                      >
+                        <button
+                          className="page-link"
+                          onClick={() => handlePageChange(payload.pageNo - 1)}
+                        >
+                          &lt;
+                        </button>
+                      </li>
+
+                      {[...Array(totalPages)].map((_, i) => {
+                        const page = i + 1;
+                        if (
+                          page === 1 ||
+                          page === totalPages ||
+                          (page >= payload.pageNo - 1 &&
+                            page <= payload.pageNo + 1)
+                        ) {
+                          return (
+                            <li
+                              key={page}
+                              className={`page-item ${
+                                payload.pageNo === page ? "active" : ""
+                              }`}
+                            >
+                              <button
+                                className="page-link"
+                                onClick={() => handlePageChange(page)}
+                              >
+                                {page}
+                              </button>
+                            </li>
+                          );
+                        } else if (
+                          (page === payload.pageNo - 2 && page > 2) ||
+                          (page === payload.pageNo + 2 && page < totalPages - 1)
+                        ) {
+                          return (
+                            <li key={page} className="page-item disabled">
+                              <span className="page-link">...</span>
+                            </li>
+                          );
+                        }
+                        return null;
+                      })}
+
+                      <li
+                        className={`page-item ${
+                          payload.pageNo === totalPages ? "disabled" : ""
+                        }`}
+                      >
+                        <button
+                          className="page-link"
+                          onClick={() => handlePageChange(payload.pageNo + 1)}
+                        >
+                          &gt;
+                        </button>
+                      </li>
+                    </ul>
+                  </nav>
+                </div>
+
                 {list.length == 0 && !showSkelton && <NoRecordFound />}
               </div>
             </div>

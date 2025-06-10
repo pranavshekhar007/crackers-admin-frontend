@@ -7,7 +7,10 @@ import {
   deleteCategoryServ,
   updateCategoryServ,
 } from "../../services/category.service";
-import { getBookingListServ } from "../../services/bookingDashboard.services";
+import {
+  getBookingListServ,
+  updateBookingServ,
+} from "../../services/bookingDashboard.services";
 
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
@@ -15,7 +18,9 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import moment from "moment";
 import NoRecordFound from "../../Components/NoRecordFound";
+import { useNavigate } from "react-router-dom";
 function OrderList() {
+  const navigate = useNavigate();
   const [list, setList] = useState([]);
   const [statics, setStatics] = useState(null);
   const [payload, setPayload] = useState({
@@ -155,42 +160,64 @@ function OrderList() {
     }
     setIsLoading(false);
   };
-    const deliveryStatusOptions = [
-  { label: "Select Delivery Status", value: "" },
-  { label: "Order Placed", value: "orderPlaced" },
-  { label: "Order Packed", value: "orderPacked" },
-  { label: "Out for delivery", value: "outForDelivery" },
-  { label: "Completed", value: "completed" },
-  { label: "Cancelled", value: "cancelled" },
-];
-  const renderStatusFunction = (status)=>{
-    if(status=="orderPlaced"){
-      return(
-         "New Request"
-      )
+  const deliveryStatusOptions = [
+    { label: "Select Delivery Status", value: "" },
+    { label: "Order Placed", value: "orderPlaced" },
+    { label: "Order Packed", value: "orderPacked" },
+    { label: "Out for delivery", value: "outForDelivery" },
+    { label: "Completed", value: "completed" },
+    { label: "Cancelled", value: "cancelled" },
+  ];
+  const renderStatusFunction = (status) => {
+    if (status == "orderPlaced") {
+      return "New Request";
     }
-    if(status=="orderPacked"){
-      return(
-         "Order Packed"
-      )
+    if (status == "orderPacked") {
+      return "Order Packed";
     }
-    if(status=="outForDelivery"){
-      return(
-         "Out for delivery"
-      )
+    if (status == "outForDelivery") {
+      return "Out for delivery";
     }
-    if(status=="completed"){
-      return(
-         "Completed"
-      )
+    if (status == "completed") {
+      return "Completed";
     }
-    if(status=="cancelled"){
-      return(
-         "Cancelled"
-      )
+    if (status == "cancelled") {
+      return "Cancelled";
     }
-  }
-  
+  };
+
+  const [updatedStatuses, setUpdatedStatuses] = useState({});
+  const [statusUpdating, setStatusUpdating] = useState({});
+
+  const handleStatusChange = (bookingId, newStatus) => {
+    setUpdatedStatuses((prev) => ({
+      ...prev,
+      [bookingId]: newStatus,
+    }));
+  };
+
+  const handleStatusUpdate = async (bookingId) => {
+    const status = updatedStatuses[bookingId];
+    if (!status) return alert("Please select a status before updating.");
+
+    setStatusUpdating((prev) => ({ ...prev, [bookingId]: true }));
+
+    try {
+      const res = await updateBookingServ({ id: bookingId, status });
+
+      if (res.status === 200) {
+        alert("Status updated successfully!");
+      } else {
+        alert("Failed to update status");
+      }
+    } catch (err) {
+      console.error("Error updating status:", err);
+      alert("Something went wrong");
+    } finally {
+      setStatusUpdating((prev) => ({ ...prev, [bookingId]: false }));
+    }
+  };
+
   return (
     <div className="bodyContainer">
       <Sidebar selectedMenu="Orders" selectedItem="Orders" />
@@ -230,7 +257,7 @@ function OrderList() {
             <div className="col-lg-4 mb-2 col-md-12 col-12">
               <h3 className="mb-0 text-bold text-secondary">Orders</h3>
             </div>
-            
+
             <div className="col-lg-4 mb-2  col-md-6 col-12">
               <div>
                 <select
@@ -239,7 +266,6 @@ function OrderList() {
                     setPayload({ ...payload, status: e.target.value })
                   }
                 >
-                  
                   {deliveryStatusOptions.map((status) => (
                     <option key={status.value} value={status.value}>
                       {status.label}
@@ -249,124 +275,98 @@ function OrderList() {
               </div>
             </div>
           </div>
-          <div className="mt-3">
-            <div className="card-body px-2">
-              {list?.map((v, i) => {
-                return (
-                  <div className="row px-2 pe-3 py-3 orderMainCard m-0 mb-4 shadow">
-                    <div className="row col-6 m-0 p-0">
-                      <div className="col-6 m-0">
-                        <div className=" p-2 bg-light mb-2 boxCart">
-                          <p>
-                            <b>User Details</b>
-                          </p>
-                          <div className="d-flex align-items-center">
-                            <div>
-                              <img
-                                src={
-                                  v?.userId?.profilePic
-                                    ? v?.userId?.profilePic
-                                    : "https://cdn-icons-png.flaticon.com/128/149/149071.png"
-                                }
-                                style={{
-                                  height: "50px",
-                                  width: "50px",
-                                  borderRadius: "50px",
-                                }}
-                              />
-                            </div>
-                            <div className="ms-2">
-                              <p className="mb-0" style={{ fontSize: "14px" }}>
-                                {v?.userId?.firstName +
-                                  " " +
-                                  v?.userId?.lastName}
-                              </p>
-                              <p className="mb-0" style={{ fontSize: "14px" }}>
-                                Phone : {v?.userId?.phone}
-                              </p>
-                            </div>
-                          </div>
-                          <hr className="my-1" />
-                          <p>
-                            <b>Address</b>
-                          </p>
-                          <p>
-                            {v?.addressId?.area}, {v?.addressId?.landmark},{" "}
-                            {v?.addressId?.city}, {v?.addressId?.pincode},{" "}
-                            {v?.addressId?.state}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="col-6 m-0">
-                        <div className=" p-2 bg-light boxCart">
-                          <p>
-                            <b>Order</b> : {v?._id?.substring(0, 10)}
-                          </p>
-                          <p>
-                            <b>Total Amount</b>: {v?.totalAmount}
-                          </p>
-                          <p>
-                            <b>Status</b>: {renderStatusFunction(v?.status)}
-                          </p>
-                          <hr className="my-1" />
-                          <p>
-                            <b>Mode Of Payment</b> : {v?.modeOfPayment}
-                          </p>
-                          {v?.modeOfPayment == "Online" && (
-                            <>
-                              <p>
-                                <b>Signature</b>: {v?.signature}
-                              </p>
-                              <p>
-                                <b>Payment ID</b>: {v?.paymentId}
-                              </p>
-                              <p>
-                                <b>Order ID</b>: {v?.orderId}
-                              </p>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-6 ">
-                      {v?.product?.map((value, i) => {
-                        return (
-                          <div className=" ">
-                            <div
-                              className={
-                                "flatCart d-flex row justify-content-between align-items-center  py-3 pb-4 " +
-                                (i % 2 == 0
-                                  ? "bg-light text-dark"
-                                  : "text-light lightGreenBg")
+          <div className="container mt-4">
+            {showSkelton ? (
+              <Skeleton count={10} height={40} />
+            ) : list?.length === 0 ? (
+              <NoRecordFound />
+            ) : (
+              <div className="table-responsive">
+                <table className="table table-bordered table-striped">
+                  <thead className="thead-dark">
+                    <tr>
+                      <th>Order ID</th>
+                      <th>Created</th>
+                      <th>Customer</th>
+                      <th>Status</th>
+                      <th>Updated</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {list.map((item, index) => (
+                      <tr key={index}>
+                        <td>{item?._id?.substring(0, 10) || "-"}</td>
+                        <td>{moment(item?.createdAt).format("DD MMM YYYY")}</td>
+                        <td>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "10px",
+                            }}
+                          >
+                            <img
+                              src={
+                                item?.userId?.profilePic
+                                ? item?.userId?.profilePic
+                                : "https://cdn-icons-png.flaticon.com/128/149/149071.png"
                               }
+                              alt="profile"
                               style={{
-                                marginTop: i * -15 + "px",
-                                borderRadius:
-                                  i + 1 == v?.product?.length
-                                    ? "20px"
-                                    : "20px 20px 0px 0px",
+                                width: "32px",
+                                height: "32px",
+                                borderRadius: "50%",
                               }}
-                            >
-                              <p className="col-1">{i + 1}.</p>
-
-                              <p className="col-2">{value?.productId?.name}</p>
-                              <p className="col-3">
-                                Quantity : {value?.quantity}
-                              </p>
-                              <p className="col-4">
-                                Total Price : {value?.totalPrice}
-                              </p>
-                              
-                            </div>
+                            />
+                            {item?.userId?.firstName + item?.userId?.lastName || "Guest"}
                           </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })}
-              {list.length == 0 && !showSkelton && <NoRecordFound />}
-            </div>
+                        </td>
+                        <td>
+                          <select
+                            value={updatedStatuses[item._id] || item?.status}
+                            onChange={(e) =>
+                              handleStatusChange(item._id, e.target.value)
+                            }
+                            className="form-select"
+                          >
+                            {deliveryStatusOptions.map((opt, idx) => (
+                              <option key={idx} value={opt.value}>
+                                {opt.label}
+                              </option>
+                            ))}
+                          </select>
+                          <button
+                            onClick={() => handleStatusUpdate(item._id)}
+                            className="btn btn-sm btn-primary mt-2"
+                            disabled={statusUpdating[item._id]}
+                          >
+                            {statusUpdating[item._id]
+                              ? "Updating..."
+                              : "Update"}
+                          </button>
+                        </td>
+                        <td>
+                          {moment(item?.updatedAt).format(
+                            "DD MMM YYYY hh:mm A"
+                          )}
+                        </td>
+                        <td>
+                          <button
+                            className="btn btn-sm btn-outline-info"
+                            onClick={() =>
+                              navigate(`/order-detail/${item._id}`)
+                            }
+                          >
+                            View
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -355,7 +355,7 @@ function OrderList() {
                           <button
                             className="btn btn-sm btn-outline-info"
                             onClick={() =>
-                              navigate(`/order-detail/${item._id}`)
+                              navigate(`/order-details/${item._id}`)
                             }
                           >
                             View

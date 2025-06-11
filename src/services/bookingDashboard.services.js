@@ -61,3 +61,15 @@ export const getUserListServ = async (formData) => {
     throw error;
   }
 };
+
+export const getBookingDetailsServ = async (id) => {
+  try {
+    const response = await axios.get(
+      BASE_URL + `booking/details/${id}`,
+    );
+    return response;
+  } catch (error) {
+    console.error("Error fetching booking details:", error);
+    throw error;
+  }
+};

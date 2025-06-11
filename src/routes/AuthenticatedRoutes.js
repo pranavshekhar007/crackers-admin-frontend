@@ -106,7 +106,7 @@ function AuthenticatedRoutes() {
         <Route path="/bulk-order-list" element={<BulkOrderList />}/>
         <Route path="/orders" element={<OrderList />} />
         <Route path="/orders/:status" element={<OrderList />} />
-        <Route path="/order-details" element={<OrderDetails />} />
+        <Route path="/order-details/:id" element={<OrderDetails />} />
         
 
 

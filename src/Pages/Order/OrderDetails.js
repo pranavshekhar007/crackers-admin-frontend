@@ -4,21 +4,22 @@ import moment from "moment";
 import { getBookingDetailsServ } from "../../services/bookingDashboard.services";
 import Sidebar from "../../Components/Sidebar";
 import TopNav from "../../Components/TopNav";
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
 
 const OrderDetails = () => {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   useEffect(() => {
-    console.log("Order ID from URL:", id);
     fetchOrderDetails();
   }, [id]);
 
   const fetchOrderDetails = async () => {
     try {
       const res = await getBookingDetailsServ(id);
-      console.log("Booking details response:", res);
       setOrder(res?.data?.data);
     } catch (error) {
       console.error("Failed to fetch order details:", error);
@@ -30,141 +31,343 @@ const OrderDetails = () => {
   if (loading) return <div className="p-4">Loading...</div>;
   if (!order) return <div className="p-4">No order found.</div>;
 
+  const user = order?.userId || {};
+  const address = order?.address || {};
+  const products = order?.product || [];
+
+  const handleOpenPaymentModal = () => setShowPaymentModal(true);
+  const handleClosePaymentModal = () => setShowPaymentModal(false);
+
+  const isPaymentUploaded = order?.paymentSs;
+
+  const statusFlow = [
+    { key: "orderPlaced", icon: "🛒", label: "Order Placed" },
+    { key: "orderPacked", icon: "📦", label: "Packed" },
+    { key: "shipping", icon: "🚚", label: "Shipping" },
+    { key: "outForDelivery", icon: "📍", label: "Out For Delivery" },
+    { key: "delivered", icon: "✅", label: "Delivered" },
+    { key: "cancelled", icon: "❌", label: "Cancelled" },
+  ];
+  
+
   return (
     <div className="bodyContainer">
-    <Sidebar selectedMenu="Orders" selectedItem="Orders" />
-    <div className="mainContainer">
-      <TopNav />
-      <div className="p-lg-4 p-md-3 p-2">
-        <div
-          className="row mx-0 p-0"
-          style={{
-            position: "relative",
-            top: "-75px",
-            marginBottom: "-75px",
-          }}
-        >
-    <div className="p-4">
-      <h3>Order Details</h3>
-      <hr />
-      <div>
-        <strong>Order ID:</strong> {order?._id} <br />
-        <strong>Created At:</strong>{" "}
-        {moment(order?.createdAt).format("DD MMM YYYY, hh:mm A")} <br />
-        <strong>Status:</strong> {order?.status} <br />
-        <strong>Total Amount:</strong> ₹{order?.totalAmount} <br />
-        <strong>Mode of Payment:</strong> {order?.modeOfPayment} <br />
-        <strong>Payment ID:</strong> {order?.paymentId || "-"} <br />
-        <strong>Signature:</strong> {order?.signature || "-"} <br />
-        <strong>Payment Screenshot:</strong>{" "}
-        {order?.paymentSs ? (
-          <img
-            src={order.paymentSs}
-            alt="Payment Screenshot"
-            style={{ maxWidth: "300px", marginTop: "10px" }}
-          />
-        ) : (
-          "Not uploaded"
-        )}
-      </div>
+      <Sidebar selectedMenu="Orders" selectedItem="Orders" />
+      <div className="mainContainer">
+        <TopNav />
+        <div className="container-fluid p-lg-4 p-md-3 p-2">
+          <div className="row g-4">
+            {/* Left Column */}
+            <div className="col-lg-8">
+              <div className="card shadow-sm p-4">
+                <h4 className="mb-3">
+                  Order #{order?._id?.slice(0, 6).toUpperCase()}
+                </h4>
+                <table className="table">
+                  <thead className="table-light">
+                    <tr>
+                      <th>Product Details</th>
+                      <th>Item Price</th>
+                      <th>Quantity</th>
+                      <th>total Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {products.map((item, i) => (
+                      <tr key={i}>
+                        <td>
+                          <img
+                            src={item?.productId?.productHeroImage}
+                            alt="product"
+                            style={{ width: 50 }}
+                          />
+                          <strong className="m-4">
+                            {item?.productId?.name}
+                          </strong>
+                        </td>
+                        <td>
+                          ₹
+                          {item?.productId?.discountedPrice ||
+                            item?.productId?.price}
+                        </td>
+                        <td>{item?.quantity || 1}</td>
+                        <td>
+                          ₹
+                          {(
+                            (item?.productId?.discountedPrice ||
+                              item?.productId?.price ||
+                              0) * (item?.quantity || 1)
+                          ).toFixed(2)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
 
-      <hr />
-      <h5>Customer Details</h5>
-      <p>
-        <strong>Name:</strong>{" "}
-        {(order?.userId?.firstName || "") + " " + (order?.userId?.lastName || "") || "Guest"}
-      </p>
+                <div className="d-flex flex-column align-items-end mt-3">
+                  <div>Subtotal: ₹{order?.totalAmount}</div>
+                  <div>Shipping: ₹0</div>
+                  <div>Tax: ₹0</div>
+                  <div className="fw-bold">Total: ₹{order?.totalAmount}</div>
+                </div>
+              </div>
 
-      <h5>Shipping Address</h5>
-      <pre>
-        {order?.address ? (
-          <>
-            {order.address.fullName}
-            {"\n"}Phone: {order.address.phone}
-            {"\n"}Alt: {order.address.alternatePhone}
-            {"\n"}Landmark: {order.address.landmark}
-            {"\n"}Area: {order.address.area}
-            {"\n"}City: {order.address.city}
-            {"\n"}State: {order.address.state}
-            {"\n"}Pincode: {order.address.pincode}
-            {"\n"}Country: {order.address.country}
-          </>
-        ) : (
-          "N/A"
-        )}
-      </pre>
+              {/* Order Status */}
+              <div className="card shadow-sm p-4 mt-4">
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <h5 className="mb-0">Order Status</h5>
+                  {/* <div className="d-flex gap-2">
+                    <button
+                      className="btn btn-sm"
+                      style={{
+                        backgroundColor: "#eaf8fe",
+                        color: "#2ca7da",
+                        fontWeight: "500",
+                        border: "none",
+                      }}
+                    >
+                      <i className="me-2"></i>
+                      📍 Change Address
+                    </button>
 
-      <h5>Products</h5>
-      {order?.product?.length > 0 ? (
-        <div className="table-responsive">
-          <table className="table table-bordered mt-3">
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th className="text-center">Price</th>
-                <th className="text-center">Image</th>
-                <th className="text-center">Qty</th>
-              </tr>
-            </thead>
-            <tbody>
-              {order.product.map((p, index) => (
-                <tr key={p?._id || index}>
-                  <td >{p?.productId?.name || "-"}</td>
-                  <td className="text-center">
-                                  {p?.productId?.price ? (
-                                    <div style={{ lineHeight: "1.2" }}>
-                                      <div
-                                        style={{
-                                          fontWeight: "bold",
-                                          fontSize: "16px",
-                                          color: "#28a745",
-                                        }}
-                                      >
-                                        {p?.productId?.discountedPrice}
-                                      </div>
-                                      <div
-                                        style={{
-                                          textDecoration: "line-through",
-                                          color: "#888",
-                                          fontSize: "13px",
-                                          marginTop: "4px",
-                                        }}
-                                      >
-                                        {p?.productId?.price}
-                                      </div>
-                                    </div>
-                                  ) : (
-                                    <div
-                                      style={{
-                                        fontWeight: "bold",
-                                        fontSize: "16px",
-                                      }}
-                                    >
-                                      {p?.productId?.price}
-                                    </div>
-                                  )}
-                                </td>
+                    <button
+                      className="btn btn-sm"
+                      style={{
+                        backgroundColor: "#fde7e9",
+                        color: "#e63946",
+                        fontWeight: "500",
+                        border: "none",
+                      }}
+                    >
+                      <i className="fa fa-times-circle me-2"></i>
+                      Cancel Order
+                    </button>
+                  </div> */}
+                </div>
 
-                  <td className="text-center">
-                    <img
-                      src={p?.productId?.productHeroImage}
-                      alt="product"
-                      style={{ width: "60px" }}
-                    />
-                  </td>
-                  <td className="text-center">{p?.qty || 1}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                <ul className="order-tracker ps-0">
+                  {statusFlow.map((step, idx) => {
+                    if (
+                      step.key === "cancelled" &&
+                      order.status !== "cancelled"
+                    )
+                      return null;
+
+                    const currentIndex = statusFlow.findIndex(
+                      (s) => s.key === order?.status
+                    );
+                    const isCompleted = idx < currentIndex;
+                    const isActive = idx === currentIndex;
+
+                    return (
+                      <li
+                        key={step.key}
+                        className={`${
+                          isCompleted
+                            ? "completed"
+                            : isActive
+                            ? "active"
+                            : "pending"
+                        }`}
+                      >
+                        <div className="icon">{step.icon}</div>
+                        <div className="details">
+                          <strong>
+                            {step.label} -{" "}
+                            {moment(order?.createdAt)
+                              .add(idx, "days")
+                              .format("ddd, DD MMM YYYY")}
+                          </strong>
+
+                          {/* Optional message blocks */}
+                          {step.key === "orderPlaced" && (
+                            <div className="text-muted small">
+                              An order has been placed.
+                              <br />
+                              {moment(order?.createdAt).format(
+                                "ddd, DD MMM YYYY - h:mmA"
+                              )}
+                              <br />
+                              Seller has processed your order.
+                              <br />
+                              {moment(order?.createdAt)
+                                .add(1, "days")
+                                .format("ddd, DD MMM YYYY - h:mmA")}
+                            </div>
+                          )}
+
+                          {step.key === "orderPacked" && (
+                            <div className="text-muted small">
+                              Your item has been picked up by courier partner.
+                              <br />
+                              {moment(order?.createdAt)
+                                .add(2, "days")
+                                .format("ddd, DD MMM YYYY - h:mmA")}
+                            </div>
+                          )}
+
+                          {step.key === "shipping" && (
+                            <div className="text-muted small">
+                              <strong>RQP Logistics – MFDS1400457854</strong>
+                              <br />
+                              Your item has been shipped.
+                              <br />
+                              {moment(order?.createdAt)
+                                .add(3, "days")
+                                .format("ddd, DD MMM YYYY - h:mmA")}
+                            </div>
+                          )}
+
+                          {step.key === "outForDelivery" && (
+                            <div className="text-muted small">
+                              Your item is out for delivery.
+                            </div>
+                          )}
+
+                          {step.key === "delivered" && (
+                            <div className="text-muted small">
+                              Order has been delivered successfully.
+                            </div>
+                          )}
+
+                          {step.key === "cancelled" && (
+                            <div className="text-muted small text-danger">
+                              This order was cancelled.
+                            </div>
+                          )}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            </div>
+
+            {/* Right Column */}
+            <div className="col-lg-4">
+              {/* Logistics */}
+              {/* <div className="card shadow-sm p-3 mb-4">
+                <h6 className="fw-bold mb-2">Logistics Details</h6>
+                <div>
+                  Courier: <strong>RQP Logistics</strong>
+                </div>
+                <div>
+                  Tracking ID: <strong>{order?.paymentId || "N/A"}</strong>
+                </div>
+                <div>Payment Mode: {order?.modeOfPayment}</div>
+                <button className="btn btn-sm btn-primary mt-2">
+                  Track Order
+                </button>
+              </div> */}
+
+              {/* Customer Details */}
+              <div className="card shadow-sm p-3 mb-4">
+                <div className="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                  <h6 className="fw-bold mb-0">Customer Details</h6>
+                  {/* <a
+                    href={`/profile/${user?._id}`}
+                    className="text-decoration-none fw-medium"
+                    style={{ color: "#7F56D9" }}
+                  >
+                    View Profile
+                  </a> */}
+                </div>
+
+                <div className="d-flex align-items-center mb-3">
+                  <img
+                    src={
+                      user?.profilePic
+                        ? user?.profilePic
+                        : "https://cdn-icons-png.flaticon.com/128/149/149071.png"
+                    }
+                    alt="profile"
+                    style={{
+                      width: "32px",
+                      height: "32px",
+                      borderRadius: "50%",
+                    }}
+                  />
+                  <div className="ms-3">
+                    <div className="fw-semibold">
+                      {user?.firstName} {user?.lastName}
+                    </div>
+                    <div className="text-muted small">Customer</div>
+                  </div>
+                </div>
+
+                <div className="mb-2 d-flex align-items-center">
+                  <i className="fa fa-envelope me-2 text-muted"></i>
+                  <span>{user?.email || "-"}</span>
+                </div>
+
+                <div className="d-flex align-items-center">
+                  <i className="fa fa-phone me-2 text-muted"></i>
+                  <span>{user?.phone || "-"}</span>
+                </div>
+              </div>
+
+              {/* Shipping Address */}
+              <div className="card shadow-sm p-3 mb-4">
+                <h6 className="fw-bold mb-2">Shipping Address</h6>
+                <div>{address.fullName}</div>
+                <div>{address.phone}</div>
+                <div>
+                  {address.area}, {address.city}, {address.state} -{" "}
+                  {address.pincode}
+                </div>
+                <div>{address.country}</div>
+              </div>
+
+              {/* Payment Details */}
+              <div className="card shadow-sm p-3 mb-4">
+                <h6 className="fw-bold mb-3">Payment Details</h6>
+
+                <div>Transaction ID: #{order?.paymentId || "N/A"}</div>
+                <div>Payment Mode: {order?.modeOfPayment || "-"}</div>
+                <div>Total Paid: ₹{order?.totalAmount || "-"}</div>
+
+                <div className="d-flex align-items-center mt-2">
+                  <div className="me-2 fw-medium">
+                    Payment Screenshot:{" "}
+                    {isPaymentUploaded ? (
+                      <span className="text-success">Uploaded</span>
+                    ) : (
+                      <span className="text-danger">Not Uploaded</span>
+                    )}
+                  </div>
+
+                  {isPaymentUploaded && (
+                    <button
+                      onClick={handleOpenPaymentModal}
+                      className="btn"
+                      title="View Screenshot"
+                    >
+                      <i className="fa fa-eye"></i>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      ) : (
-        <p>No products found in this order.</p>
-      )}
-    </div>
-    </div>
-    </div>
-    </div>
+      </div>
+      <Modal show={showPaymentModal} onHide={handleClosePaymentModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Payment Screenshot</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="text-center">
+          <img
+            src={order?.paymentSs}
+            alt="Payment Screenshot"
+            className="img-fluid rounded"
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClosePaymentModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

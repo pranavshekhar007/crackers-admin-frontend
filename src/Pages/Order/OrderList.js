@@ -164,8 +164,9 @@ function OrderList() {
     { label: "Select Delivery Status", value: "" },
     { label: "Order Placed", value: "orderPlaced" },
     { label: "Order Packed", value: "orderPacked" },
+    { label: "Shipping", value: "shipping" },
     { label: "Out for delivery", value: "outForDelivery" },
-    { label: "Completed", value: "completed" },
+    { label: "Delivered", value: "delivered" },
     { label: "Cancelled", value: "cancelled" },
   ];
   const renderStatusFunction = (status) => {

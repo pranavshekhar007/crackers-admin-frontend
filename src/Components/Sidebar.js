@@ -85,7 +85,11 @@ function Sidebar({ selectedMenu, selectedItem }) {
       subMenu: [
         {
           name: "States",
-          path: "/user-list",
+          path: "/state-list",
+        },
+        {
+          name: "City",
+          path: "/city-list",
         },
       ],
     },

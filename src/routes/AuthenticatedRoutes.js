@@ -42,6 +42,8 @@ import BulkOrderList from '../Pages/Order/BulkOrderList';
 import UserList from '../Pages/User/UserList';
 import VendorList from '../Pages/Vendor/VendorList';
 import OrderDetails from '../Pages/Order/OrderDetails';
+import StateList from '../Pages/Location/StateList';
+import CityList from '../Pages/Location/CityList';
 
 function AuthenticatedRoutes() {
   return (
@@ -129,6 +131,11 @@ function AuthenticatedRoutes() {
 
         {/* vendor routes  */}
         <Route path='/vendor-list' element={<VendorList />} />
+
+        {/* location list  */}
+        <Route path='/state-list' element={<StateList />} />
+        <Route path='/city-list' element={<CityList />} />
+
     </Routes>
   )
 }

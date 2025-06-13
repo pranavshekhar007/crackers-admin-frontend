@@ -13,13 +13,11 @@ import Select from "react-select";
 import {
   addStateServ,
   deleteStateServ,
-  getCityServ,
   getStateServ,
   updateStateServ,
 } from "../../services/location.services";
 function StateList() {
   const [list, setList] = useState([]);
-  const [city, setCity] = useState([]);
   const [statics, setStatics] = useState(null);
   const [payload, setPayload] = useState({
     searchKey: "",
@@ -63,24 +61,11 @@ function StateList() {
   const [isLoading, setIsLoading] = useState(false);
   const [addFormData, setAddFormData] = useState({
     name: "",
-    city: [],
     status: "",
-    _id: "",
     show: false,
   });
 
-  const handleGetCities = async () => {
-    try {
-      const res = await getCityServ(payload);
-      setCity(res.data.data);
-    } catch (error) {
-      toast.error("Failed to load cities");
-    }
-  };
 
-  useEffect(() => {
-    handleGetCities();
-  }, []);
 
   const handleAddStateFunc = async () => {
     console.log("Submitting:", addFormData);
@@ -91,9 +76,7 @@ function StateList() {
         toast.success(response?.data?.message);
         setAddFormData({
           name: "",
-          city: [],
           status: "",
-          _id: "",
           show: false,
         });
         handleGetStateFunc();
@@ -129,9 +112,7 @@ function StateList() {
   };
   const [editFormData, setEditFormData] = useState({
     name: "",
-    city: [],
     status: "",
-    _id: "",
   });
   const handleUpdateStateFunc = async () => {
     setIsLoading(true);
@@ -142,7 +123,6 @@ function StateList() {
         toast.success(response?.data?.message);
         setEditFormData({
           name: "",
-          city: [],
           status: "",
           _id: "",
         });
@@ -347,7 +327,6 @@ function StateList() {
                                     onClick={() => {
                                       setEditFormData({
                                         name: v?.name,
-                                        city: v?.city?._id || v?.city || "",
                                         status: v?.status,
                                         _id: v?._id,
                                       });
@@ -487,7 +466,6 @@ function StateList() {
                   style={{ height: "20px" }}
                   onClick={() =>
                     setAddFormData({
-                      city: [],
                       name: "",
                       status: "",
                       show: false,
@@ -517,25 +495,6 @@ function StateList() {
                       }
                     />
 
-                    <label className="mt-3">City Name</label>
-                    <Select
-                      isMulti
-                      options={city?.map((v) => ({
-                        label: v?.name,
-                        value: v?._id,
-                      }))}
-                      onChange={(selectedOptions) =>
-                        setAddFormData({
-                          ...addFormData,
-                          city: selectedOptions.map(
-                            (option) => option.value
-                          ),
-                        })
-                      }
-                      className="basic-multi-select"
-                      classNamePrefix="select"
-                    />
-
                     <label className="mt-3">Status</label>
                     <select
                       className="form-control"
@@ -556,7 +515,6 @@ function StateList() {
                       className="btn btn-success w-100 mt-4"
                       onClick={
                         addFormData?.name &&
-                        addFormData?.city &&
                         addFormData?.status &&
                         !isLoading
                           ? handleAddStateFunc
@@ -564,14 +522,12 @@ function StateList() {
                       }
                       disabled={
                         !addFormData?.name ||
-                        !addFormData?.city ||
                         !addFormData?.status ||
                         isLoading
                       }
                       style={{
                         opacity:
                           !addFormData?.name ||
-                          !addFormData?.city ||
                           !addFormData?.status ||
                           isLoading
                             ? "0.5"
@@ -610,7 +566,6 @@ function StateList() {
                   onClick={() =>
                     setEditFormData({
                       name: "",
-                      city: "",
                       status: "",
                       _id: "",
                     })
@@ -629,7 +584,7 @@ function StateList() {
                   <div className="w-100 px-2">
                     <h5 className="mb-4">Update State</h5>
 
-                    <label className="mt-3">Name</label>
+                    <label className="mt-3">State Name</label>
                     <input
                       className="form-control"
                       type="text"
@@ -642,31 +597,7 @@ function StateList() {
                       value={editFormData?.name}
                     />
 
-                    <label className="mt-3">City Name</label>
-                    <select
-                      className="form-control"
-                      multiple
-                      value={addFormData.city}
-                      onChange={(e) => {
-                        const selectedOptions = Array.from(
-                          e.target.selectedOptions
-                        ).map((option) => option.value);
-                        setAddFormData({
-                          ...addFormData,
-                          city: selectedOptions,
-                        });
-                      }}
-                    >
-                      {city.map((city) => (
-                        <option key={city._id} value={city._id}>
-                          {city.name}
-                        </option>
-                      ))}
-                    </select>
-                    <small className="text-muted">
-                      Hold Ctrl (Windows) or Command (Mac) to select multiple
-                      cities.
-                    </small>
+                    
 
                     <label className="mt-3">Status</label>
                     <select
@@ -685,7 +616,6 @@ function StateList() {
                     </select>
 
                     {editFormData?.name &&
-                    editFormData?.city &&
                     editFormData?.status ? (
                       <button
                         className="btn btn-success w-100 mt-4"

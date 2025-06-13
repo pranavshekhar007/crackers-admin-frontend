@@ -44,6 +44,7 @@ import VendorList from '../Pages/Vendor/VendorList';
 import OrderDetails from '../Pages/Order/OrderDetails';
 import StateList from '../Pages/Location/StateList';
 import CityList from '../Pages/Location/CityList';
+import InvoicePage from '../Pages/Order/InvoicePage';
 
 function AuthenticatedRoutes() {
   return (
@@ -109,6 +110,8 @@ function AuthenticatedRoutes() {
         <Route path="/orders" element={<OrderList />} />
         <Route path="/orders/:status" element={<OrderList />} />
         <Route path="/order-details/:id" element={<OrderDetails />} />
+        <Route path="/invoice/:id" element={<InvoicePage />} />
+
         
 
 

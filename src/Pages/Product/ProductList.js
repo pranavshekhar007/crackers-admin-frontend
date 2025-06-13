@@ -18,6 +18,11 @@ function ProductList() {
   const navigate = useNavigate();
   const [list, setList] = useState([]);
   const [statics, setStatics] = useState(null);
+  const [showBulkModal, setShowBulkModal] = useState(false);
+  const [bulkForm, setBulkForm] = useState({
+    name: "",
+    file: null,
+  });
   const [payload, setPayload] = useState({
     searchKey: "",
     status: "",
@@ -65,6 +70,7 @@ function ProductList() {
     status: "",
     _id: "",
   });
+
   const updateProductFunc = async () => {
     try {
       let response = await updateProductServ({
@@ -175,7 +181,7 @@ function ProductList() {
             <div className="col-lg-2 mb-2 col-md-12 col-12">
               <h3 className="mb-0 text-bold text-secondary">Products</h3>
             </div>
-            <div className="col-lg-3 mb-2 col-md-12 col-12">
+            <div className="col-lg-2 mb-2 col-md-12 col-12">
               <div>
                 <input
                   className="form-control borderRadius24"
@@ -217,16 +223,23 @@ function ProductList() {
               </select>
             </div>
 
-            <div className="col-lg-3 mb-2 col-md-6 col-12">
-              <div>
-                <button
-                  className="btn w-100 borderRadius24 text-light"
-                  style={{ background: "#c34b36" }}
-                  onClick={() => navigate("/add-product")}
-                >
-                  Add Product
-                </button>
-              </div>
+            <div className="col-lg-2 mb-2 col-md-6 col-12">
+              <button
+                className="btn w-100 borderRadius24 text-light"
+                style={{ background: "#c34b36" }}
+                onClick={() => navigate("/add-product")}
+              >
+                Add Product
+              </button>
+            </div>
+            <div className="col-lg-2 mb-2 col-md-6 col-12">
+              <button
+                className="btn w-100 borderRadius24 text-light p-2"
+                style={{ background: "#354f52" }}
+                onClick={() => setShowBulkModal(true)}
+              >
+                Add Bulk Products
+              </button>
             </div>
           </div>
           <div className="mt-3">
@@ -615,6 +628,95 @@ function ProductList() {
         </div>
       )}
       {editFormData?._id && <div className="modal-backdrop fade show"></div>}
+      {showBulkModal && (
+        <>
+          <div
+            className="modal fade show d-flex align-items-center justify-content-center"
+            style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+            tabIndex="-1"
+          >
+            <div className="modal-dialog">
+              <div
+                className="modal-content"
+                style={{
+                  borderRadius: "16px",
+                  background: "#f7f7f5",
+                  width: "364px",
+                }}
+              >
+                {/* Custom close button */}
+                <div className="d-flex justify-content-end pt-4 pb-0 px-4">
+                  <img
+                    src="https://cdn-icons-png.flaticon.com/128/9068/9068699.png"
+                    style={{ height: "20px", cursor: "pointer" }}
+                    onClick={() => setShowBulkModal(false)}
+                    alt="Close"
+                  />
+                </div>
+
+                {/* Modal Body */}
+                <div className="modal-body">
+                  <div
+                    style={{
+                      wordWrap: "break-word",
+                      whiteSpace: "pre-wrap",
+                    }}
+                    className="d-flex justify-content-center w-100"
+                  >
+                    <div className="w-100 px-2">
+                      <h5 className="mb-4">Upload Bulk Products</h5>
+
+                      <div className="mb-3">
+                        <label className="form-label">Bulk Name</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={bulkForm.name}
+                          onChange={(e) =>
+                            setBulkForm({ ...bulkForm, name: e.target.value })
+                          }
+                          placeholder="Enter bulk upload name"
+                        />
+                      </div>
+
+                      <div className="mb-3">
+                        <label className="form-label">
+                          Upload File (CSV/Excel)
+                        </label>
+                        <input
+                          type="file"
+                          className="form-control"
+                          accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                          onChange={(e) =>
+                            setBulkForm({
+                              ...bulkForm,
+                              file: e.target.files[0],
+                            })
+                          }
+                        />
+                      </div>
+
+                      <button
+                        className="btn btn-primary w-100 mt-3"
+                        // onClick={handleBulkUpload}
+                        // disabled={!bulkForm.name || !bulkForm.file}
+                        // style={{
+                        //   opacity: !bulkForm.name || !bulkForm.file ? 0.6 : 1,
+                        // }}
+                      >
+                        Upload
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Backdrop */}
+          <div className="modal-backdrop fade show"></div>
+        </>
+      )}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import moment from "moment";
 import { getBookingDetailsServ } from "../../services/bookingDashboard.services";
 import Sidebar from "../../Components/Sidebar";
@@ -12,6 +12,8 @@ const OrderDetails = () => {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     fetchOrderDetails();
@@ -48,7 +50,6 @@ const OrderDetails = () => {
     { key: "delivered", icon: "✅", label: "Delivered" },
     { key: "cancelled", icon: "❌", label: "Cancelled" },
   ];
-  
 
   return (
     <div className="bodyContainer">
@@ -60,9 +61,29 @@ const OrderDetails = () => {
             {/* Left Column */}
             <div className="col-lg-8">
               <div className="card shadow-sm p-4">
-                <h4 className="mb-3">
-                  Order #{order?._id?.slice(0, 6).toUpperCase()}
-                </h4>
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <h4 className="mb-0">
+                    Order #{order?._id?.slice(0, 6).toUpperCase()}
+                  </h4>
+                  <button
+                    className="btn"
+                    onClick={() => navigate(`/invoice/${order?._id}`)}
+                    style={{
+                      backgroundColor: "#28c76f",
+                      color: "#fff",
+                      fontWeight: "600",
+                      border: "none",
+                      borderRadius: "5px",
+                      padding: "8px 12px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
+                  >
+                    <i className="fa fa-download"></i> Invoice
+                  </button>
+                </div>
+
                 <table className="table">
                   <thead className="table-light">
                     <tr>

@@ -277,25 +277,59 @@ function OrderList() {
             </div>
           </div>
           <div className="container mt-4">
-            {showSkelton ? (
-              <Skeleton count={10} height={40} />
-            ) : list?.length === 0 ? (
-              <NoRecordFound />
-            ) : (
-              <div className="table-responsive">
-                <table className="table table-bordered table-striped">
-                  <thead className="thead-dark">
+            <div className="table-responsive">
+              <table className="table table-bordered table-striped">
+                <thead className="thead-dark">
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Created</th>
+                    <th>Customer</th>
+                    <th>Status</th>
+                    <th>Updated</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {showSkelton ? (
+                    [...Array(10)].map((_, i) => (
+                      <tr key={i}>
+                        <td>
+                          <Skeleton width={100} height={20} />
+                        </td>
+                        <td>
+                          <Skeleton width={120} height={20} />
+                        </td>
+                        <td>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "10px",
+                            }}
+                          >
+                            <Skeleton circle width={32} height={32} />
+                            <Skeleton width={100} height={20} />
+                          </div>
+                        </td>
+                        <td>
+                          <Skeleton width={100} height={35} />
+                        </td>
+                        <td>
+                          <Skeleton width={140} height={20} />
+                        </td>
+                        <td>
+                          <Skeleton width={80} height={30} />
+                        </td>
+                      </tr>
+                    ))
+                  ) : list?.length === 0 ? (
                     <tr>
-                      <th>Order ID</th>
-                      <th>Created</th>
-                      <th>Customer</th>
-                      <th>Status</th>
-                      <th>Updated</th>
-                      <th>Action</th>
+                      <td colSpan="6" className="text-center py-3">
+                        <NoRecordFound />
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {list.map((item, index) => (
+                  ) : (
+                    list.map((item, index) => (
                       <tr key={index}>
                         <td>{item?._id?.substring(0, 10) || "-"}</td>
                         <td>{moment(item?.createdAt).format("DD MMM YYYY")}</td>
@@ -310,8 +344,8 @@ function OrderList() {
                             <img
                               src={
                                 item?.userId?.profilePic
-                                ? item?.userId?.profilePic
-                                : "https://cdn-icons-png.flaticon.com/128/149/149071.png"
+                                  ? item?.userId?.profilePic
+                                  : "https://cdn-icons-png.flaticon.com/128/149/149071.png"
                               }
                               alt="profile"
                               style={{
@@ -320,7 +354,8 @@ function OrderList() {
                                 borderRadius: "50%",
                               }}
                             />
-                            {item?.userId?.firstName + item?.userId?.lastName || "Guest"}
+                            {item?.userId?.firstName + item?.userId?.lastName ||
+                              "Guest"}
                           </div>
                         </td>
                         <td>
@@ -363,11 +398,11 @@ function OrderList() {
                           </button>
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

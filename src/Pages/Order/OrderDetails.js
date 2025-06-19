@@ -6,13 +6,17 @@ import Sidebar from "../../Components/Sidebar";
 import TopNav from "../../Components/TopNav";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
+
 
 const OrderDetails = () => {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
-  const [loading, setLoading] = useState(true);
+    const [list, setList] = useState([]);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const navigate = useNavigate();
+  const [showSkelton, setShowSkelton] = useState(false);
 
 
   useEffect(() => {
@@ -20,17 +24,19 @@ const OrderDetails = () => {
   }, [id]);
 
   const fetchOrderDetails = async () => {
+    if (list.length == 0) {
+      setShowSkelton(true);
+    }
     try {
       const res = await getBookingDetailsServ(id);
       setOrder(res?.data?.data);
     } catch (error) {
       console.error("Failed to fetch order details:", error);
     } finally {
-      setLoading(false);
+      setShowSkelton(false);
     }
   };
 
-  if (loading) return <div className="p-4">Loading...</div>;
   if (!order) return <div className="p-4">No order found.</div>;
 
   const user = order?.userId || {};
@@ -67,7 +73,7 @@ const OrderDetails = () => {
                   </h4>
                   <button
                     className="btn"
-                    onClick={() => navigate(`/invoice/${order?._id}`)}
+                    onClick={() => navigate(`/order-invoice/${order?._id}`)}
                     style={{
                       backgroundColor: "#28c76f",
                       color: "#fff",
@@ -137,33 +143,6 @@ const OrderDetails = () => {
               <div className="card shadow-sm p-4 mt-4">
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <h5 className="mb-0">Order Status</h5>
-                  {/* <div className="d-flex gap-2">
-                    <button
-                      className="btn btn-sm"
-                      style={{
-                        backgroundColor: "#eaf8fe",
-                        color: "#2ca7da",
-                        fontWeight: "500",
-                        border: "none",
-                      }}
-                    >
-                      <i className="me-2"></i>
-                      📍 Change Address
-                    </button>
-
-                    <button
-                      className="btn btn-sm"
-                      style={{
-                        backgroundColor: "#fde7e9",
-                        color: "#e63946",
-                        fontWeight: "500",
-                        border: "none",
-                      }}
-                    >
-                      <i className="fa fa-times-circle me-2"></i>
-                      Cancel Order
-                    </button>
-                  </div> */}
                 </div>
 
                 <ul className="order-tracker ps-0">
@@ -266,32 +245,11 @@ const OrderDetails = () => {
 
             {/* Right Column */}
             <div className="col-lg-4">
-              {/* Logistics */}
-              {/* <div className="card shadow-sm p-3 mb-4">
-                <h6 className="fw-bold mb-2">Logistics Details</h6>
-                <div>
-                  Courier: <strong>RQP Logistics</strong>
-                </div>
-                <div>
-                  Tracking ID: <strong>{order?.paymentId || "N/A"}</strong>
-                </div>
-                <div>Payment Mode: {order?.modeOfPayment}</div>
-                <button className="btn btn-sm btn-primary mt-2">
-                  Track Order
-                </button>
-              </div> */}
 
               {/* Customer Details */}
               <div className="card shadow-sm p-3 mb-4">
                 <div className="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
                   <h6 className="fw-bold mb-0">Customer Details</h6>
-                  {/* <a
-                    href={`/profile/${user?._id}`}
-                    className="text-decoration-none fw-medium"
-                    style={{ color: "#7F56D9" }}
-                  >
-                    View Profile
-                  </a> */}
                 </div>
 
                 <div className="d-flex align-items-center mb-3">

@@ -95,7 +95,7 @@ function ProductUpdateStep1() {
     try {
       let response = await getProductDetailsServ(params?.id);
       if (response?.data?.statusCode === 200) {
-        const product = response?.data?.data;
+        const product = response?.data?.data?.product;
         setFormData({
           name: product?.name || "",
           tags: product?.tags || [],
@@ -254,9 +254,13 @@ function ProductUpdateStep1() {
                   <label>Category</label>
                   <Select
                     isMulti
-                    value={categoryOptions.filter((option) =>
-                      formData.categoryId.includes(option.value)
-                    )}
+                    value={categoryOptions.filter((option) => {
+                      return formData.categoryId.some((cat) =>
+                        typeof cat === "string"
+                          ? cat === option.value
+                          : cat._id === option.value
+                      );
+                    })}
                     onChange={(selected) =>
                       setFormData({
                         ...formData,

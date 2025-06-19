@@ -299,6 +299,18 @@ function ProductList() {
                                 <td className="text-center">
                                   <Skeleton width={100} height={25} />
                                 </td>
+                                <td className="text-center">
+                                  <Skeleton width={100} height={25} />
+                                </td>
+                                <td className="text-center">
+                                  <Skeleton width={100} height={25} />
+                                </td>
+                                <td className="text-center">
+                                  <Skeleton width={100} height={25} />
+                                </td>
+                                <td className="text-center">
+                                  <Skeleton width={100} height={25} />
+                                </td>
                               </tr>
                               <div className="py-2"></div>
                             </>
@@ -413,7 +425,17 @@ function ProductList() {
                                 </td>
 
                                 <td className="text-center">
-                                  <a
+                                
+                                    <button
+                                      className="btn btn-sm btn-outline-info"
+                                      onClick={() =>
+                                        navigate(`/product-details/${v?._id}`)
+                                      }
+                                    >
+                                      View
+                                    </button>
+                                 
+                                  {/* <a
                                     className="btn btn-info mx-2 text-light shadow-sm"
                                     onClick={() =>
                                       navigate(
@@ -422,15 +444,15 @@ function ProductList() {
                                     }
                                   >
                                     Edit
-                                  </a>
-                                  <a
+                                  </a> */}
+                                  {/* <a
                                     className="btn btn-warning mx-2 text-light shadow-sm"
                                     onClick={() =>
                                       handleDeleteProductFunc(v?._id)
                                     }
                                   >
                                     Delete
-                                  </a>
+                                  </a> */}
                                 </td>
                               </tr>
                               <div className="py-2"></div>

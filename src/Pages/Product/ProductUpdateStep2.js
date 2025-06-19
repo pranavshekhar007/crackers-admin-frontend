@@ -38,34 +38,14 @@ function ProductUpdateStep2() {
     brandId: "",
     price: "",
     discountedPrice: "",
-    ingredients: "",
-    packOf: "",
     numberOfPieces: "",
-    currency: "",
-    MRP: "",
-    offerPrice: "",
-    salePrice: "",
-    saleStartDate: "",
-    saleEndDate: "",
-    itemWeight: "",
-    packageWeight: "",
-    packSize: "",
-    servingSize: "",
-    energy: "",
-    protein: "",
-    carbohydrate: "",
-    fat: "",
-    saturatedFat: "",
-    transFat: "",
-    totalSugar: "",
-    addedSugar: "",
-    dietaryFiber: "",
-    calcium: "",
-    iron: "",
-    phosphorus: "",
-    potassium: "",
-    sodium: "",
     description: "",
+    soundLevel: "",
+    lightEffect: "",
+    safetyRating: "",
+    usageArea: "",
+    duration: "",
+    weightPerBox: "",
   });
 
   const [brandList, setBrandList] = useState([]);
@@ -82,42 +62,20 @@ function ProductUpdateStep2() {
     try {
       let response = await getProductDetailsServ(params?.id);
       if (response?.data?.statusCode === 200) {
-        const product = response?.data?.data;
+        const product = response?.data?.data?.product;
         setFormData({
           stockQuantity: product?.stockQuantity || "",
           brandId: product?.brandId || "",
           price: product?.price || "",
           discountedPrice: product?.discountedPrice || "",
-          ingredients: product?.ingredients || "",
-          description: product?.description || "",
-
-          // Newly added fields
-          packOf: product?.packOf || "",
           numberOfPieces: product?.numberOfPieces || "",
-          currency: product?.currency || "",
-          MRP: product?.MRP || "",
-          offerPrice: product?.offerPrice || "",
-          salePrice: product?.salePrice || "",
-          saleStartDate: product?.saleStartDate || "",
-          saleEndDate: product?.saleEndDate || "",
-          itemWeight: product?.itemWeight || "",
-          packageWeight: product?.packageWeight || "",
-          packSize: product?.packSize || "",
-          servingSize: product?.servingSize || "",
-          energy: product?.energy || "",
-          protein: product?.protein || "",
-          carbohydrate: product?.carbohydrate || "",
-          fat: product?.fat || "",
-          saturatedFat: product?.saturatedFat || "",
-          transFat: product?.transFat || "",
-          totalSugar: product?.totalSugar || "",
-          addedSugar: product?.addedSugar || "",
-          dietaryFiber: product?.dietaryFiber || "",
-          calcium: product?.calcium || "",
-          iron: product?.iron || "",
-          phosphorus: product?.phosphorus || "",
-          potassium: product?.potassium || "",
-          sodium: product?.sodium || "",
+          description: product?.description || "",
+          soundLevel: product?.soundLevel || "",
+          lightEffect: product?.lightEffect || "",
+          safetyRating: product?.safetyRating || "",
+          usageArea: product?.usageArea || "",
+          duration: product?.duration || "",
+          weightPerBox: product?.weightPerBox || "",
         });
         setContent(product?.description || "");
         contentRef.current = product?.description || "";
@@ -148,34 +106,8 @@ function ProductUpdateStep2() {
           brandId: "",
           price: "",
           discountedPrice: "",
-          ingredients: "",
-          description: "",
-          packOf: "",
           numberOfPieces: "",
-          currency: "",
-          MRP: "",
-          offerPrice: "",
-          salePrice: "",
-          saleStartDate: "",
-          saleEndDate: "",
-          itemWeight: "",
-          packageWeight: "",
-          packSize: "",
-          servingSize: "",
-          energy: "",
-          protein: "",
-          carbohydrate: "",
-          fat: "",
-          saturatedFat: "",
-          transFat: "",
-          totalSugar: "",
-          addedSugar: "",
-          dietaryFiber: "",
-          calcium: "",
-          iron: "",
-          phosphorus: "",
-          potassium: "",
-          sodium: "",
+          description: "",
         });
         navigate("/update-product-step3/" + response?.data?.data?._id);
       } else {
@@ -187,7 +119,7 @@ function ProductUpdateStep2() {
     setBtnLoader(false);
   };
   return (
-    <div className="bodyContainer"> 
+    <div className="bodyContainer">
       <Sidebar selectedMenu="Product Management" selectedItem="Add Product" />
       <div className="mainContainer">
         <TopNav />
@@ -245,7 +177,7 @@ function ProductUpdateStep2() {
                     })}
                   </select>
                 </div>
-      
+
                 <div className="col-4 mb-3">
                   <label>Product Price (MRP)</label>
                   <input
@@ -273,7 +205,7 @@ function ProductUpdateStep2() {
                   />
                 </div>
 
-                <div className="col-6 mb-3">
+                <div className="col-4 mb-3">
                   <label>Number of Pieces</label>
                   <input
                     onChange={(e) =>
@@ -286,7 +218,89 @@ function ProductUpdateStep2() {
                     className="form-control"
                   />
                 </div>
-             
+
+                <div className="col-4 mb-3">
+                  <label>Sound Level</label>
+                  <select
+                    className="form-control"
+                    value={formData?.soundLevel}
+                    onChange={(e) =>
+                      setFormData({ ...formData, soundLevel: e.target.value })
+                    }
+                  >
+                    <option value="">Select</option>
+                    <option value="Mild">Mild</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Loud">Loud</option>
+                  </select>
+                </div>
+
+                <div className="col-4 mb-3">
+                  <label>Light Effect</label>
+                  <input
+                    className="form-control"
+                    value={formData?.lightEffect}
+                    onChange={(e) =>
+                      setFormData({ ...formData, lightEffect: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="col-4 mb-3">
+                  <label>Safety Rating</label>
+                  <select
+                    className="form-control"
+                    value={formData?.safetyRating}
+                    onChange={(e) =>
+                      setFormData({ ...formData, safetyRating: e.target.value })
+                    }
+                  >
+                    <option value="">Select</option>
+                    <option value="KidSafe">KidSafe</option>
+                    <option value="Adult Supervision Only">
+                      Adult Supervision Only
+                    </option>
+                  </select>
+                </div>
+
+                <div className="col-6 mb-3">
+                  <label>Usage Area</label>
+                  <select
+                    className="form-control"
+                    value={formData?.usageArea}
+                    onChange={(e) =>
+                      setFormData({ ...formData, usageArea: e.target.value })
+                    }
+                  >
+                    <option value="">Select</option>
+                    <option value="Outdoor">Outdoor</option>
+                    <option value="Open Space">Open Space</option>
+                  </select>
+                </div>
+
+                <div className="col-3 mb-3">
+                  <label>Duration (in seconds)</label>
+                  <input
+                    type="number"
+                    className="form-control"
+                    value={formData?.duration}
+                    onChange={(e) =>
+                      setFormData({ ...formData, duration: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="col-3 mb-3">
+                  <label>Weight Per Box (g)</label>
+                  <input
+                    type="number"
+                    className="form-control"
+                    value={formData?.weightPerBox}
+                    onChange={(e) =>
+                      setFormData({ ...formData, weightPerBox: e.target.value })
+                    }
+                  />
+                </div>
 
                 <div className="col-12 mb-3">
                   <label>Product Description</label>
@@ -295,7 +309,7 @@ function ProductUpdateStep2() {
                     config={config}
                     value={content}
                     onChange={(newContent) => {
-                      contentRef.current = newContent; // ✅ Update ref without re-rendering
+                      contentRef.current = newContent;
                     }}
                   />
                 </div>

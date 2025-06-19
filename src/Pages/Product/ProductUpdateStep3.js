@@ -75,9 +75,9 @@ function ProductUpdateStep3() {
       let response = await getProductDetailsServ(params?.id);
       if (response?.data?.statusCode == "200") {
         setDetails({
-          productHeroImage: response?.data?.data?.productHeroImage,
-          productGallery: response?.data?.data?.productGallery,
-          productVideo: response?.data?.data?.productVideo,
+          productHeroImage: response?.data?.data?.product?.productHeroImage,
+          productGallery: response?.data?.data?.product?.productGallery,
+          productVideo: response?.data?.data?.product?.productVideo,
         });
       }
     } catch (error) {}

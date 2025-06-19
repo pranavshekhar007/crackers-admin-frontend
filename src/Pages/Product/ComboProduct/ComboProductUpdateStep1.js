@@ -35,31 +35,9 @@ function ComboProductUpdateStep1() {
     shortDescription: "",
   });
 
-  const [productOptions, setProductOptions] = useState([]);
-
   const config = {
     placeholder: "Start typing...",
     height: "300px",
-  };
-
-  const fetchDropdownData = async () => {
-    try {
-      const [typeRes, productRes] = await Promise.all([
-        getProductTypeServ({ status: true }),
-        getProductServ(),
-      ]);
-
-      if (productRes?.data?.statusCode === 200) {
-        setProductOptions(
-          productRes.data.data.map((product) => ({
-            label: product.name,
-            value: product._id,
-          }))
-        );
-      }
-    } catch (error) {
-      toast.error("Failed to fetch dropdown data.");
-    }
   };
 
   const getComboProductDetails = async () => {
@@ -70,13 +48,13 @@ function ComboProductUpdateStep1() {
         setFormData({
           maxComboLimit: product?.maxComboLimit || "",
           name: product?.name || "",
+          gtin: product?.gtin || "",
           productId: product?.productId || [],
           pricing: {
             actualPrice: product?.pricing?.actualPrice || "",
             offerPrice: product?.pricing?.offerPrice || "",
             comboPrice: product?.pricing?.comboPrice || "",
           },
-          gtin: product?.gtin || "",
           shortDescription: product?.shortDescription || "",
         });
         setContent(product?.shortDescription || "");
@@ -88,7 +66,6 @@ function ComboProductUpdateStep1() {
   };
 
   useEffect(() => {
-    fetchDropdownData();
     getComboProductDetails();
   }, []);
 
@@ -142,22 +119,24 @@ function ComboProductUpdateStep1() {
   }, []);
 
   useEffect(() => {
+    if (!productList.length || !formData.productId.length) return;
+  
     const totalMRP = formData.productId.reduce((total, item) => {
-      const product = productList.find(
-        (p) => p._id === item.product || p._id === item.value
-      );
+      const productId =
+        typeof item.product === "object" ? item.product._id : item.product;
+      const product = productList.find((p) => p._id === productId);
       const qty = item.quantity || 1;
       return total + (product?.price || 0) * qty;
     }, 0);
-
+  
     const totalDiscount = formData.productId.reduce((total, item) => {
-      const product = productList.find(
-        (p) => p._id === item.product || p._id === item.value
-      );
+      const productId =
+        typeof item.product === "object" ? item.product._id : item.product;
+      const product = productList.find((p) => p._id === productId);
       const qty = item.quantity || 1;
       return total + (product?.discountedPrice || 0) * qty;
     }, 0);
-
+  
     setFormData((prev) => ({
       ...prev,
       pricing: {
@@ -243,87 +222,84 @@ function ComboProductUpdateStep1() {
                   />
                 </div>
 
-                <div className="col-md-6 mb-4">
-                  <label className="form-label mb-2">Products</label>
-                  <Select
-                    isMulti
-                    options={productList?.map((v) => ({
-                      label: v?.name,
-                      value: v?._id,
-                    }))}
-                    value={formData.productId.map((p) => {
-                      const product = productList.find(
-                        (prod) => prod._id === p.product
-                      );
-                      return { label: product?.name, value: p.product };
-                    })}
-                    onChange={(selectedOptions) => {
-                      const updatedProductIds = selectedOptions.map(
-                        (option) => {
-                          const existing = formData.productId.find(
-                            (p) => p.product === option.value
-                          );
-                          return {
-                            product: option.value,
-                            quantity: existing ? existing.quantity : 1,
-                          };
-                        }
-                      );
-                      setFormData({
-                        ...formData,
-                        productId: updatedProductIds,
-                      });
-                    }}
-                    className="basic-multi-select"
-                    classNamePrefix="select"
-                  />
+               <div className="col-md-6 mb-4">
+  <label className="form-label mb-2">Products</label>
+  <Select
+    isMulti
+    options={productList?.map((v) => ({
+      label: v?.name,
+      value: v?._id,
+    }))}
+    value={formData.productId.map((p) => {
+      const matched = productList.find((prod) => prod._id === p.product._id);
+      return {
+        label: matched?.name || p.product?.name,
+        value: p.product._id,
+      };
+    })}
+    onChange={(selectedOptions) => {
+      const updatedProductIds = selectedOptions.map((option) => {
+        const existing = formData.productId.find(
+          (p) => p.product._id === option.value
+        );
+        return {
+          product: {
+            _id: option.value,
+            name: option.label,
+          },
+          quantity: existing ? existing.quantity : 1,
+        };
+      });
+      setFormData({
+        ...formData,
+        productId: updatedProductIds,
+      });
+    }}
+    className="basic-multi-select"
+    classNamePrefix="select"
+  />
 
-                  {/* Quantity Inputs */}
-                  <div className="mt-3">
-                    {formData.productId.map((item, idx) => {
-                      const productDetails = productList.find(
-                        (p) => p._id === item.product
-                      );
-                      return (
-                        <div
-                          key={item.product}
-                          className="border rounded px-3 py-2 mb-2 d-flex align-items-center justify-content-between bg-light"
-                        >
-                          <div
-                            className="text-truncate me-3"
-                            style={{ maxWidth: "65%" }}
-                          >
-                            <strong>{productDetails?.name}</strong>
-                          </div>
-                          <div
-                            className="d-flex align-items-center gap-2"
-                            style={{ minWidth: "120px" }}
-                          >
-                            <label className="mb-0 small text-muted">
-                              Qty:
-                            </label>
-                            <input
-                              type="number"
-                              min="1"
-                              value={item.quantity}
-                              className="form-control form-control-sm"
-                              onChange={(e) => {
-                                const updated = [...formData.productId];
-                                updated[idx].quantity =
-                                  parseInt(e.target.value) || 1;
-                                setFormData({
-                                  ...formData,
-                                  productId: updated,
-                                });
-                              }}
-                              style={{ width: "60px" }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
+  {/* Quantity Inputs */}
+  <div className="mt-3">
+    {formData.productId.map((item, idx) => {
+      const productDetails = productList.find(
+        (p) => p._id === item.product._id
+      );
+      return (
+        <div
+          key={item.product._id}
+          className="border rounded px-3 py-2 mb-2 d-flex align-items-center justify-content-between bg-light"
+        >
+          <div className="text-truncate me-3" style={{ maxWidth: "65%" }}>
+            <strong>{productDetails?.name}</strong>
+          </div>
+          <div
+            className="d-flex align-items-center gap-2"
+            style={{ minWidth: "120px" }}
+          >
+            <label className="mb-0 small text-muted">Qty:</label>
+            <input
+              type="number"
+              min="1"
+              value={item.quantity}
+              className="form-control form-control-sm"
+              onChange={(e) => {
+                const updated = [...formData.productId];
+                updated[idx].quantity = parseInt(e.target.value) || 1;
+                setFormData({
+                  ...formData,
+                  productId: updated,
+                });
+              }}
+              style={{ width: "60px" }}
+            />
+          </div>
+        </div>
+      );
+    })}
+  </div>
+</div>
+
 
                 <div className="col-4 mb-3">
                   <label>Product Price (MRP)</label>

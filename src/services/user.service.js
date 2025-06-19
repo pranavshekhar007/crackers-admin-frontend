@@ -43,3 +43,13 @@ export const dashboardDetailsServ = async () => {
     throw error;
   }
 };
+
+export const getUserCartServ = async (userId) => {
+  try {
+    const response = await axios.get(`${BASE_URL}user/cart/${userId}`);
+    return response;
+  } catch (error) {
+    console.error("Error fetching user cart:", error);
+    throw error;
+  }
+};

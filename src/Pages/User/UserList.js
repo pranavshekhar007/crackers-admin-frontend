@@ -7,7 +7,11 @@ import {
   deleteCategoryServ,
   updateCategoryServ,
 } from "../../services/category.service";
-import {getUserListServ, deleteUserServ} from "../../services/user.service"
+import {
+  getUserListServ,
+  deleteUserServ,
+  getUserCartServ,
+} from "../../services/user.service";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { toast } from "react-toastify";
@@ -17,6 +21,11 @@ import NoRecordFound from "../../Components/NoRecordFound";
 function UserList() {
   const [list, setList] = useState([]);
   const [statics, setStatics] = useState(null);
+  const [showCartModal, setShowCartModal] = useState(false);
+  const [selectedCart, setSelectedCart] = useState([]);
+  const [actualTotal, setActualTotal] = useState(0);
+  const [discountedTotal, setDiscountedTotal] = useState(0);
+
   const [payload, setPayload] = useState({
     searchKey: "",
     status: "",
@@ -56,7 +65,7 @@ function UserList() {
   useEffect(() => {
     handleGetUserFunc();
   }, [payload]);
-  
+
   const handleDeleteUserFunc = async (id) => {
     const confirmed = window.confirm(
       "Are you sure you want to delete this user?"
@@ -77,21 +86,108 @@ function UserList() {
       }
     }
   };
-  
-   const [totalPages, setTotalPages] = useState(1);
-    
-      useEffect(() => {
-        if (statics?.totalCount && payload.pageCount) {
-          const pages = Math.ceil(statics.totalCount / payload.pageCount);
-          setTotalPages(pages);
-        }
-      }, [statics, payload.pageCount]);
-    
-      const handlePageChange = (newPage) => {
-        if (newPage >= 1 && newPage <= totalPages) {
-          setPayload({ ...payload, pageNo: newPage });
-        }
-      };
+
+  const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+    if (statics?.totalCount && payload.pageCount) {
+      const pages = Math.ceil(statics.totalCount / payload.pageCount);
+      setTotalPages(pages);
+    }
+  }, [statics, payload.pageCount]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setPayload({ ...payload, pageNo: newPage });
+    }
+  };
+
+  // const handleViewCart = async (userId) => {
+  //   try {
+  //     const res = await getUserCartServ(userId);
+  //     const data = res.data;
+
+  //     if (data?.statusCode === 200) {
+  //       setSelectedCart(data.cartItems);
+  //       setActualTotal(data.actualTotalAmount);
+  //       setDiscountedTotal(data.discountedTotalAmount);
+  //       setShowCartModal(true);
+  //     } else {
+  //       toast.error(data?.message || "Failed to fetch cart");
+  //     }
+  //   } catch (err) {
+  //     toast.error("Something went wrong while fetching cart items");
+  //   }
+  // };
+
+  const handleViewCart = (userId) => {
+    const dummyCartItems = [
+      {
+        name: "Chakri Combo Pack",
+        quantity: 3,
+        price: 100,
+        discountedPrice: 80,
+        totalItemPrice: 300,
+        totalItemDiscountedPrice: 240,
+        productHeroImage:
+          "https://i0.wp.com/bigbangcrackers.com/wp-content/uploads/2024/08/Crackling-Opera-Photoroom.jpg?w=500&ssl=1",
+      },
+      {
+        name: "Rocket Box",
+        quantity: 2,
+        price: 150,
+        discountedPrice: 120,
+        totalItemPrice: 300,
+        totalItemDiscountedPrice: 240,
+        productHeroImage:
+          "https://i0.wp.com/bigbangcrackers.com/wp-content/uploads/2024/08/60-Shots-Photoroom.jpg?w=500&ssl=1",
+      },
+      {
+        name: "Rocket Box",
+        quantity: 2,
+        price: 150,
+        discountedPrice: 120,
+        totalItemPrice: 300,
+        totalItemDiscountedPrice: 240,
+        productHeroImage:
+          "https://i0.wp.com/bigbangcrackers.com/wp-content/uploads/2024/08/60-Shots-Photoroom.jpg?w=500&ssl=1",
+      },
+      {
+        name: "Rocket Box",
+        quantity: 2,
+        price: 150,
+        discountedPrice: 120,
+        totalItemPrice: 300,
+        totalItemDiscountedPrice: 240,
+        productHeroImage:
+          "https://i0.wp.com/bigbangcrackers.com/wp-content/uploads/2024/08/60-Shots-Photoroom.jpg?w=500&ssl=1",
+      },
+      {
+        name: "Rocket Box",
+        quantity: 2,
+        price: 150,
+        discountedPrice: 120,
+        totalItemPrice: 300,
+        totalItemDiscountedPrice: 240,
+        productHeroImage:
+          "https://i0.wp.com/bigbangcrackers.com/wp-content/uploads/2024/08/60-Shots-Photoroom.jpg?w=500&ssl=1",
+      },
+    ];
+
+    const totalActual = dummyCartItems.reduce(
+      (sum, item) => sum + item.totalItemPrice,
+      0
+    );
+    const totalDiscounted = dummyCartItems.reduce(
+      (sum, item) => sum + item.totalItemDiscountedPrice,
+      0
+    );
+
+    setSelectedCart(dummyCartItems);
+    setActualTotal(totalActual);
+    setDiscountedTotal(totalDiscounted);
+    setShowCartModal(true);
+  };
 
   return (
     <div className="bodyContainer">
@@ -220,8 +316,10 @@ function UserList() {
                           return (
                             <>
                               <tr>
-                              <td className="text-center">
-                                  {(payload.pageNo - 1) * payload.pageCount + i + 1}
+                                <td className="text-center">
+                                  {(payload.pageNo - 1) * payload.pageCount +
+                                    i +
+                                    1}
                                 </td>
                                 <td className="text-center">
                                   <img
@@ -230,15 +328,16 @@ function UserList() {
                                   />
                                 </td>
                                 <td className="font-weight-600 text-center">
-                                  {v?.firstName+" "+v?.lastName}
+                                  {v?.firstName + " " + v?.lastName}
                                 </td>
                                 <td className="font-weight-600 text-center">
                                   {v?.phone}
-                                </td><td className="font-weight-600 text-center">
+                                </td>
+                                <td className="font-weight-600 text-center">
                                   {v?.email}
                                 </td>
                                 <td className="text-center">
-                                  {v?.profileStatus =="completed" ? (
+                                  {v?.profileStatus == "completed" ? (
                                     <div
                                       className="badge py-2"
                                       style={{ background: "#63ED7A" }}
@@ -256,9 +355,14 @@ function UserList() {
                                 </td>
                                 <td className="text-center">
                                   <a
-                                    onClick={() =>
-                                      handleDeleteUserFunc(v?._id)
-                                    }
+                                    onClick={() => handleViewCart(v?._id)}
+                                    className="btn btn-info mx-2 text-light shadow-sm"
+                                  >
+                                    View Cart
+                                  </a>
+
+                                  <a
+                                    onClick={() => handleDeleteUserFunc(v?._id)}
                                     className="btn btn-warning mx-2 text-light shadow-sm"
                                   >
                                     Delete
@@ -271,7 +375,6 @@ function UserList() {
                         })}
                   </tbody>
                 </table>
-
 
                 <div className="d-flex flex-column flex-md-row justify-content-center align-items-center gap-5 px-3 py-3 mt-4">
                   <div className="d-flex align-items-center gap-2">
@@ -368,7 +471,74 @@ function UserList() {
           </div>
         </div>
       </div>
-     
+      {showCartModal && (
+        <div className="custom-modal-backdrop">
+          <div className="custom-modal-content">
+            <h4 className="mb-4"> User Cart Items</h4>
+            <div className="table-container-with-sticky-header">
+              <table className="table table-bordered text-center align-middle">
+                <thead className="table-light">
+                  <tr>
+                    <th>Image</th>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Discounted</th>
+                    <th>Total</th>
+                    <th>Discounted Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedCart.length > 0 ? (
+                    selectedCart.map((item, idx) => (
+                      <tr key={idx}>
+                        <td>
+                          <img
+                            src={item.productHeroImage}
+                            alt={item.name}
+                            style={{
+                              width: "60px",
+                              height: "60px",
+                              objectFit: "cover",
+                              borderRadius: "8px",
+                              boxShadow: "0 0 5px rgba(0,0,0,0.1)",
+                            }}
+                          />
+                        </td>
+                        <td>{item.name}</td>
+                        <td>{item.quantity}</td>
+                        <td>₹{item.price}</td>
+                        <td>₹{item.discountedPrice}</td>
+                        <td>₹{item.totalItemPrice}</td>
+                        <td>₹{item.totalItemDiscountedPrice}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="7" className="text-center text-muted">
+                        No items in cart
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="d-flex justify-content-between mt-3 fs-5">
+              <strong>Total: ₹{actualTotal}</strong>
+              <strong>Discounted: ₹{discountedTotal}</strong>
+            </div>
+            <div className="text-end mt-4">
+              <button
+                className="btn btn-secondary px-4"
+                onClick={() => setShowCartModal(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

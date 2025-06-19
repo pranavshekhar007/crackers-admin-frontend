@@ -11,7 +11,7 @@ import { useGlobalState } from "../../../GlobalProvider";
 import { useNavigate } from "react-router-dom";
 import { getProductServ } from "../../../services/product.services";
 import { addComboProductServ } from "../../../services/comboProduct.services";
-import { getProductTypeServ } from "../../../services/productType.service";
+// import { getProductTypeServ } from "../../../services/productType.service";
 function AddComboProduct() {
   const { globalState, setGlobalState } = useGlobalState();
   const navigate = useNavigate();
@@ -32,22 +32,9 @@ function AddComboProduct() {
       offerPrice: "",
       comboPrice: "",
     },
-    stockQuantity: "",
     gtin: "",
     shortDescription: "",
   });
-
-  const [productType, setProductType] = useState([]);
-  const getProductTypeListFunc = async () => {
-    try {
-      let response = await getProductTypeServ({ status: true });
-      if (response?.data?.statusCode == "200") {
-        setProductType(response?.data?.data);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   const [productList, setProductList] = useState([]);
   const getProductListFunc = async () => {
@@ -62,7 +49,6 @@ function AddComboProduct() {
   };
 
   useEffect(() => {
-    getProductTypeListFunc();
     getProductListFunc();
   }, []);
   const [loader, setLoader] = useState(false);
@@ -81,7 +67,6 @@ function AddComboProduct() {
             offerPrice: formData?.pricing?.offerPrice || "",
             comboPrice: formData?.pricing?.comboPrice || "",
           },
-          stockQuantity: formData?.stockQuantity,
           gtin: formData?.gtin,
           shortDescription: shortDescription,
           createdBy: formData?.createdBy,
@@ -97,7 +82,6 @@ function AddComboProduct() {
             offerPrice: formData?.pricing?.offerPrice || "",
             comboPrice: formData?.pricing?.comboPrice || "",
           },
-          stockQuantity: formData?.stockQuantity,
           gtin: formData?.gtin,
           shortDescription: shortDescription,
           createdBy: formData?.createdBy,
@@ -115,7 +99,6 @@ function AddComboProduct() {
             offerPrice: "",
             comboPrice: "",
           },
-          stockQuantity: "",
           gtin: "",
           createdBy: "",
           createdByAdmin: "",

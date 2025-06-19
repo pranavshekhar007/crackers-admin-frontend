@@ -44,7 +44,9 @@ import VendorList from '../Pages/Vendor/VendorList';
 import OrderDetails from '../Pages/Order/OrderDetails';
 import StateList from '../Pages/Location/StateList';
 import CityList from '../Pages/Location/CityList';
-import InvoicePage from '../Pages/Order/InvoicePage';
+import OrderInvoice from '../Pages/Order/OrderInvoice';
+import ProductDetails from '../Pages/Product/ProuctDetails';
+
 
 function AuthenticatedRoutes() {
   return (
@@ -86,6 +88,8 @@ function AuthenticatedRoutes() {
         <Route path="/update-product-step2/:id" element={<ProductUpdateStep2/>}/>
         <Route path="/update-product-step3/:id" element={<ProductUpdateStep3/>}/>
         <Route path="/update-product-attributes/:id" element={<ProductUpdateAttribute/>}/>
+        <Route path="/product-details/:id" element={<ProductDetails/>}/>
+
         
         {/* support */}
         <Route path="/faq-user-list" element={<UserFaq/>}/>
@@ -110,10 +114,7 @@ function AuthenticatedRoutes() {
         <Route path="/orders" element={<OrderList />} />
         <Route path="/orders/:status" element={<OrderList />} />
         <Route path="/order-details/:id" element={<OrderDetails />} />
-        <Route path="/invoice/:id" element={<InvoicePage />} />
-
-        
-
+        <Route path="/order-invoice/:id" element={<OrderInvoice />} />
 
         {/* Policy */}
         <Route path='/user-cookie-policy' element={<UserCookiePolicy />} />

@@ -6,12 +6,15 @@ import TopNav from "../../Components/TopNav";
 import { getBookingDetailsServ } from "../../services/bookingDashboard.services";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 const OrderInvoice = () => {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
-  const [loading, setLoading] = useState(true);
+   const [list, setList] = useState([]);
   const invoiceRef = useRef();
+  const [showSkelton, setShowSkelton] = useState(false);
 
   const handleDownload = async () => {
     const element = invoiceRef.current;
@@ -30,18 +33,37 @@ const OrderInvoice = () => {
   }, [id]);
 
   const fetchOrderDetails = async () => {
+    if (list.length == 0) {
+      setShowSkelton(true);
+    }
     try {
       const res = await getBookingDetailsServ(id);
       setOrder(res?.data?.data);
     } catch (error) {
       console.error("Failed to fetch order details:", error);
     } finally {
-      setLoading(false);
+      setShowSkelton(false);
     }
   };
 
-  if (loading) return <div className="p-4">Loading...</div>;
-  if (!order) return <div className="p-4">No order found.</div>;
+  if (showSkelton) {
+    return (
+      <div className="bodyContainer">
+        <Sidebar selectedMenu="Orders" selectedItem="Orders" />
+        <div className="mainContainer">
+          <TopNav />
+          <div className="container-fluid p-lg-4 p-md-3 p-2">
+            <div className="card shadow-sm p-4 mb-4">
+              <Skeleton height={30} width={200} className="mb-3" />
+              <Skeleton count={5} height={20} className="mb-2" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  if (!order) return null;
 
   const user = order?.userId || {};
   const address = order?.address || {};

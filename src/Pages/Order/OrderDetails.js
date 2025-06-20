@@ -37,7 +37,25 @@ const OrderDetails = () => {
     }
   };
 
-  if (!order) return <div className="p-4">No order found.</div>;
+  if (showSkelton) {
+    return (
+      <div className="bodyContainer">
+        <Sidebar selectedMenu="Orders" selectedItem="Orders" />
+        <div className="mainContainer">
+          <TopNav />
+          <div className="container-fluid p-lg-4 p-md-3 p-2">
+            <div className="card shadow-sm p-4 mb-4">
+              <Skeleton height={30} width={200} className="mb-3" />
+              <Skeleton count={5} height={20} className="mb-2" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  if (!order) return null;
+  
 
   const user = order?.userId || {};
   const address = order?.address || {};

@@ -181,7 +181,7 @@ function ProductList() {
             <div className="col-lg-2 mb-2 col-md-12 col-12">
               <h3 className="mb-0 text-bold text-secondary">Products</h3>
             </div>
-            <div className="col-lg-2 mb-2 col-md-12 col-12">
+            <div className="col-lg-4 mb-2 col-md-12 col-12">
               <div>
                 <input
                   className="form-control borderRadius24"
@@ -232,7 +232,7 @@ function ProductList() {
                 Add Product
               </button>
             </div>
-            <div className="col-lg-2 mb-2 col-md-6 col-12">
+            {/* <div className="col-lg-2 mb-2 col-md-6 col-12">
               <button
                 className="btn w-100 borderRadius24 text-light p-2"
                 style={{ background: "#354f52" }}
@@ -240,7 +240,7 @@ function ProductList() {
               >
                 Add Bulk Products
               </button>
-            </div>
+            </div> */}
           </div>
           <div className="mt-3">
             <div className="card-body px-2">

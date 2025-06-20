@@ -52,6 +52,10 @@ function Sidebar({ selectedMenu, selectedItem }) {
           path: "/add-combo-product",
         },
         {
+          name: "Product Types",
+          path: "/product-type-list",
+        },
+        {
           name: "Categories",
           path: "/category-list",
         },

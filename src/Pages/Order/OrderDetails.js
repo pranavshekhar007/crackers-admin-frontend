@@ -9,15 +9,13 @@ import Button from "react-bootstrap/Button";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
-
 const OrderDetails = () => {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
-    const [list, setList] = useState([]);
+  const [list, setList] = useState([]);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const navigate = useNavigate();
   const [showSkelton, setShowSkelton] = useState(false);
-
 
   useEffect(() => {
     fetchOrderDetails();
@@ -53,9 +51,8 @@ const OrderDetails = () => {
       </div>
     );
   }
-  
+
   if (!order) return null;
-  
 
   const user = order?.userId || {};
   const address = order?.address || {};
@@ -66,14 +63,56 @@ const OrderDetails = () => {
 
   const isPaymentUploaded = order?.paymentSs;
 
-  const statusFlow = [
-    { key: "orderPlaced", icon: "🛒", label: "Order Placed" },
-    { key: "orderPacked", icon: "📦", label: "Packed" },
-    { key: "shipping", icon: "🚚", label: "Shipping" },
-    { key: "outForDelivery", icon: "📍", label: "Out For Delivery" },
-    { key: "delivered", icon: "✅", label: "Delivered" },
-    { key: "cancelled", icon: "❌", label: "Cancelled" },
-  ];
+  const formattedStatusFlow = order?.statusHistory?.map((log) => ({
+    key: log.status,
+    icon:
+      log.status === "pending"
+        ? "🕓"
+        : log.status === "ssRejected"
+        ? "❗"
+        : log.status === "approved"
+        ? "💳"
+        : log.status === "orderPlaced"
+        ? "🛒"
+        : log.status === "orderPacked"
+        ? "📦"
+        : log.status === "shipping"
+        ? "🚚"
+        : log.status === "homeDelivery"
+        ? "🏠"
+        : log.status === "lorryPay"
+        ? "🛻"
+        : log.status === "outForDelivery"
+        ? "📍"
+        : log.status === "completed"
+        ? "✅"
+        : log.status === "cancelled"
+        ? "❌"
+        : "⏳",
+    label:
+      log.status === "ssRejected"
+        ? "Rejected"
+        : log.status === "approved"
+        ? "Approved"
+        : log.status === "orderPlaced"
+        ? "Order Placed"
+        : log.status === "orderPacked"
+        ? "Packed"
+        : log.status === "shipping"
+        ? "Shipping"
+        : log.status === "homeDelivery"
+        ? "Home Delivery"
+        : log.status === "lorryPay"
+        ? "Lorry Pay"
+        : log.status === "outForDelivery"
+        ? "Out for Delivery"
+        : log.status === "completed"
+        ? "Completed"
+        : log.status === "cancelled"
+        ? "Cancelled"
+        : "Pending",
+    date: moment(log.updatedAt).format("ddd, DD MMM YYYY - h:mmA"),
+  }));
 
   return (
     <div className="bodyContainer">
@@ -114,38 +153,117 @@ const OrderDetails = () => {
                       <th>Product Details</th>
                       <th>Item Price</th>
                       <th>Quantity</th>
-                      <th>total Amount</th>
+                      <th>Total Amount</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {products.map((item, i) => (
-                      <tr key={i}>
-                        <td>
-                          <img
-                            src={item?.productId?.productHeroImage}
-                            alt="product"
-                            style={{ width: 50 }}
-                          />
-                          <strong className="m-4">
-                            {item?.productId?.name}
-                          </strong>
-                        </td>
-                        <td>
-                          ₹
-                          {item?.productId?.discountedPrice ||
-                            item?.productId?.price}
-                        </td>
-                        <td>{item?.quantity || 1}</td>
-                        <td>
-                          ₹
-                          {(
-                            (item?.productId?.discountedPrice ||
-                              item?.productId?.price ||
-                              0) * (item?.quantity || 1)
-                          ).toFixed(2)}
-                        </td>
-                      </tr>
-                    ))}
+                    {products.map((item, i) => {
+                      const isCombo = item?.comboProductId;
+                      const product = item?.productId;
+                      const combo = item?.comboProductId;
+
+                      return (
+                        <tr key={i}>
+                          <td>
+                            {isCombo ? (
+                              <div>
+                                <img
+                                  src={combo?.productHeroImage}
+                                  alt="combo"
+                                  style={{ width: 50 }}
+                                />
+                                <strong className="m-3">{combo?.name}</strong>
+                                <ul className="list-unstyled mb-0 mt-2 text-start">
+                                  {combo?.productId?.map((prodObj, idx) => (
+                                    <li
+                                      key={idx}
+                                      className="mb-1 px-2 py-1 bg-light rounded text-dark"
+                                    >
+                                      {prodObj?.product?.name} (
+                                      {prodObj?.quantity})
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            ) : (
+                              <div>
+                                <img
+                                  src={product?.productHeroImage}
+                                  alt="product"
+                                  style={{ width: 50 }}
+                                />
+                                <strong className="m-4">{product?.name}</strong>
+                              </div>
+                            )}
+                          </td>
+
+                          <td>
+                            {isCombo ? (
+                              <div style={{ lineHeight: "1.2" }}>
+                                <div
+                                  style={{
+                                    fontWeight: "bold",
+                                    fontSize: "16px",
+                                    color: "#28a745",
+                                  }}
+                                >
+                                  ₹{combo?.pricing?.comboPrice}
+                                </div>
+                                {combo?.pricing?.offerPrice && (
+                                  <div
+                                    style={{
+                                      textDecoration: "line-through",
+                                      color: "#888",
+                                      fontSize: "13px",
+                                      marginTop: "4px",
+                                    }}
+                                  >
+                                    ₹{combo?.pricing?.offerPrice}
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div style={{ lineHeight: "1.2" }}>
+                                <div
+                                  style={{
+                                    fontWeight: "bold",
+                                    fontSize: "16px",
+                                    color: "#28a745",
+                                  }}
+                                >
+                                  ₹{product?.discountedPrice || product?.price}
+                                </div>
+                                {product?.discountedPrice && (
+                                  <div
+                                    style={{
+                                      textDecoration: "line-through",
+                                      color: "#888",
+                                      fontSize: "13px",
+                                      marginTop: "4px",
+                                    }}
+                                  >
+                                    ₹{product?.price}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </td>
+
+                          <td>{item?.quantity || 1}</td>
+
+                          <td>
+                            ₹
+                            {(
+                              (isCombo
+                                ? combo?.pricing?.comboPrice
+                                : product?.discountedPrice ||
+                                  product?.price ||
+                                  0) * (item?.quantity || 1) || 0
+                            ).toFixed(2)}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
 
@@ -164,106 +282,21 @@ const OrderDetails = () => {
                 </div>
 
                 <ul className="order-tracker ps-0">
-                  {statusFlow.map((step, idx) => {
-                    if (
-                      step.key === "cancelled" &&
-                      order.status !== "cancelled"
-                    )
-                      return null;
-
-                    const currentIndex = statusFlow.findIndex(
-                      (s) => s.key === order?.status
-                    );
-                    const isCompleted = idx < currentIndex;
-                    const isActive = idx === currentIndex;
-
-                    return (
-                      <li
-                        key={step.key}
-                        className={`${
-                          isCompleted
-                            ? "completed"
-                            : isActive
-                            ? "active"
-                            : "pending"
-                        }`}
-                      >
-                        <div className="icon">{step.icon}</div>
-                        <div className="details">
-                          <strong>
-                            {step.label} -{" "}
-                            {moment(order?.createdAt)
-                              .add(idx, "days")
-                              .format("ddd, DD MMM YYYY")}
-                          </strong>
-
-                          {/* Optional message blocks */}
-                          {step.key === "orderPlaced" && (
-                            <div className="text-muted small">
-                              An order has been placed.
-                              <br />
-                              {moment(order?.createdAt).format(
-                                "ddd, DD MMM YYYY - h:mmA"
-                              )}
-                              <br />
-                              Seller has processed your order.
-                              <br />
-                              {moment(order?.createdAt)
-                                .add(1, "days")
-                                .format("ddd, DD MMM YYYY - h:mmA")}
-                            </div>
-                          )}
-
-                          {step.key === "orderPacked" && (
-                            <div className="text-muted small">
-                              Your item has been picked up by courier partner.
-                              <br />
-                              {moment(order?.createdAt)
-                                .add(2, "days")
-                                .format("ddd, DD MMM YYYY - h:mmA")}
-                            </div>
-                          )}
-
-                          {step.key === "shipping" && (
-                            <div className="text-muted small">
-                              <strong>RQP Logistics – MFDS1400457854</strong>
-                              <br />
-                              Your item has been shipped.
-                              <br />
-                              {moment(order?.createdAt)
-                                .add(3, "days")
-                                .format("ddd, DD MMM YYYY - h:mmA")}
-                            </div>
-                          )}
-
-                          {step.key === "outForDelivery" && (
-                            <div className="text-muted small">
-                              Your item is out for delivery.
-                            </div>
-                          )}
-
-                          {step.key === "delivered" && (
-                            <div className="text-muted small">
-                              Order has been delivered successfully.
-                            </div>
-                          )}
-
-                          {step.key === "cancelled" && (
-                            <div className="text-muted small text-danger">
-                              This order was cancelled.
-                            </div>
-                          )}
-                        </div>
-                      </li>
-                    );
-                  })}
+                  {formattedStatusFlow.map((step, idx) => (
+                    <li key={idx} className="completed">
+                      <div className="icon">{step.icon}</div>
+                      <div className="details">
+                        <strong>{step.label}</strong>
+                        <div className="text-muted small">{step.date}</div>
+                      </div>
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>
 
             {/* Right Column */}
             <div className="col-lg-4">
-
               {/* Customer Details */}
               <div className="card shadow-sm p-3 mb-4">
                 <div className="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">

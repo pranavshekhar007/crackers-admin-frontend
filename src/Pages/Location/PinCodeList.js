@@ -7,14 +7,14 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import moment from "moment";
 import NoRecordFound from "../../Components/NoRecordFound";
-
 import {
-  addStateServ,
-  deleteStateServ,
-  getStateServ,
-  updateStateServ,
+  addPincodeServ,
+  deletePincodeServ,
+  getPincodeServ,
+  updatePincodeServ,
 } from "../../services/location.services";
-function StateList() {
+
+function PincodeList() {
   const [list, setList] = useState([]);
   const [statics, setStatics] = useState(null);
   const [payload, setPayload] = useState({
@@ -22,23 +22,35 @@ function StateList() {
     status: "",
     pageNo: 1,
     pageCount: 10,
-    sortByField: "",
   });
   const [showSkelton, setShowSkelton] = useState(false);
-  const handleGetStateFunc = async () => {
-    if (list.length == 0) {
-      setShowSkelton(true);
-    }
+  const [isLoading, setIsLoading] = useState(false);
+  const [addFormData, setAddFormData] = useState({
+    pincode: "",
+    status: "",
+    show: false,
+  });
+  const [editFormData, setEditFormData] = useState({
+    pincode: "",
+    status: "",
+    _id: "",
+  });
+
+  const handleGetPincodeFunc = async () => {
+    if (list.length === 0) setShowSkelton(true);
     try {
-      let response = await getStateServ(payload);
+      const response = await getPincodeServ(payload);
       setList(response?.data?.data);
       setStatics(response?.data?.documentCount);
-    } catch (error) {}
+    } catch (error) {
+      console.error(error);
+    }
     setShowSkelton(false);
   };
+
   const staticsArr = [
     {
-      title: "Total State",
+      title: "Total Pincode",
       count: statics?.totalCount,
       bgColor: "#6777EF",
     },
@@ -53,87 +65,56 @@ function StateList() {
       bgColor: "#FFA426",
     },
   ];
+
   useEffect(() => {
-    handleGetStateFunc();
+    handleGetPincodeFunc();
   }, [payload]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [addFormData, setAddFormData] = useState({
-    name: "",
-    status: "",
-    show: false,
-  });
 
-
-
-  const handleAddStateFunc = async () => {
-    console.log("Submitting:", addFormData);
+  const handleAddPincodeFunc = async () => {
     setIsLoading(true);
     try {
-      let response = await addStateServ(addFormData);
-      if (response?.data?.statusCode == "200") {
+      const response = await addPincodeServ(addFormData);
+      if (response?.data?.statusCode === 200) {
         toast.success(response?.data?.message);
-        setAddFormData({
-          name: "",
-          status: "",
-          show: false,
-        });
-        handleGetStateFunc();
+        setAddFormData({ pincode: "", status: "", show: false });
+        handleGetPincodeFunc();
       }
     } catch (error) {
-      toast.error(
-        error?.response?.data?.message
-          ? error?.response?.data?.message
-          : "Internal Server Error"
-      );
+      toast.error(error?.response?.data?.message || "Internal Server Error");
     }
     setIsLoading(false);
   };
-  const handleDeleteStateFunc = async (id) => {
+
+  const handleUpdatePincodeFunc = async () => {
+    setIsLoading(true);
+    try {
+      const response = await updatePincodeServ(editFormData);
+      if (response?.data?.statusCode === 200) {
+        toast.success(response?.data?.message);
+        setEditFormData({ pincode: "", status: "", _id: "" });
+        handleGetPincodeFunc();
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Internal Server Error");
+    }
+    setIsLoading(false);
+  };
+
+  const handleDeletePincodeFunc = async (id) => {
     const confirmed = window.confirm(
-      "Are you sure you want to delete this State?"
+      "Are you sure you want to delete this Pincode?"
     );
     if (confirmed) {
       try {
-        let response = await deleteStateServ(id);
-        if (response?.data?.statusCode == "200") {
-          toast?.success(response?.data?.message);
-          handleGetStateFunc();
+        const response = await deletePincodeServ(id);
+        if (response?.data?.statusCode === 200) {
+          toast.success(response?.data?.message);
+          handleGetPincodeFunc();
         }
       } catch (error) {
-        toast.error(
-          error?.response?.data?.message
-            ? error?.response?.data?.message
-            : "Internal Server Error"
-        );
+        toast.error(error?.response?.data?.message || "Internal Server Error");
       }
     }
-  };
-  const [editFormData, setEditFormData] = useState({
-    name: "",
-    status: "",
-  });
-  const handleUpdateStateFunc = async () => {
-    setIsLoading(true);
-
-    try {
-      let response = await updateStateServ(editFormData);
-      if (response?.data?.statusCode == "200") {
-        toast.success(response?.data?.message);
-        setEditFormData({
-          name: "",
-          status: "",
-          _id: "",
-        });
-        handleGetStateFunc();
-      }
-    } catch (error) {
-      toast.error(
-        error?.response?.data?.message
-          ? error?.response?.data?.message
-          : "Internal Server Error"
-      );
-    }
-    setIsLoading(false);
   };
 
   const [totalPages, setTotalPages] = useState(1);
@@ -153,10 +134,10 @@ function StateList() {
 
   return (
     <div className="bodyContainer">
-      <Sidebar selectedMenu="Location Management" selectedItem="States" />
+      <Sidebar selectedMenu="Location Management" selectedItem="Pincode" />
       <div className="mainContainer">
         <TopNav />
-        <div className="p-lg-4 p-md-3 p-2">
+        <div className="p-4">
           <div
             className="row mx-0 p-0"
             style={{
@@ -188,7 +169,7 @@ function StateList() {
           </div>
           <div className="row m-0 p-0 d-flex align-items-center my-4 topActionForm">
             <div className="col-lg-2 mb-2 col-md-12 col-12">
-              <h3 className="mb-0 text-bold text-secondary">States</h3>
+              <h3 className="mb-0 text-bold text-secondary">Pincode</h3>
             </div>
             <div className="col-lg-4 mb-2 col-md-12 col-12">
               <div>
@@ -199,7 +180,6 @@ function StateList() {
                     setPayload({
                       ...payload,
                       searchKey: e.target.value,
-                      pageNo: 1,
                     })
                   }
                 />
@@ -226,11 +206,12 @@ function StateList() {
                   style={{ background: "#6777EF" }}
                   onClick={() => setAddFormData({ ...addFormData, show: true })}
                 >
-                  Add State
+                  Add Pincode
                 </button>
               </div>
             </div>
           </div>
+
           <div className="mt-3">
             <div className="card-body px-2">
               <div className="table-responsive table-invoice">
@@ -243,7 +224,7 @@ function StateList() {
                       >
                         Sr. No
                       </th>
-                      <th className="text-center py-3">State Name</th>
+                      <th className="text-center py-3">Pin Code</th>
                       <th className="text-center py-3">Status</th>
                       <th className="text-center py-3">Created At</th>
                       <th
@@ -297,7 +278,7 @@ function StateList() {
                                 </td>
 
                                 <td className="font-weight-600 text-center">
-                                  {v?.name}
+                                  {v?.pincode}
                                 </td>
                                 <td className="text-center">
                                   {v?.status ? (
@@ -324,7 +305,7 @@ function StateList() {
                                   <a
                                     onClick={() => {
                                       setEditFormData({
-                                        name: v?.name,
+                                        pincode: v?.pincode,
                                         status: v?.status,
                                         _id: v?._id,
                                       });
@@ -335,7 +316,7 @@ function StateList() {
                                   </a>
                                   <a
                                     onClick={() =>
-                                      handleDeleteStateFunc(v?._id)
+                                      handleDeletePincodeFunc(v?._id)
                                     }
                                     className="btn btn-warning mx-2 text-light shadow-sm"
                                   >
@@ -444,6 +425,7 @@ function StateList() {
           </div>
         </div>
       </div>
+
       {addFormData?.show && (
         <div
           className="modal fade show d-flex align-items-center  justify-content-center "
@@ -464,7 +446,7 @@ function StateList() {
                   style={{ height: "20px" }}
                   onClick={() =>
                     setAddFormData({
-                      name: "",
+                      pincode: "",
                       status: "",
                       show: false,
                     })
@@ -481,15 +463,15 @@ function StateList() {
                   className="d-flex justify-content-center w-100"
                 >
                   <div className="w-100 px-2">
-                    <h5 className="mb-4">Add State</h5>
+                    <h5 className="mb-4">Add Pincode</h5>
 
-                    <label className="mt-3">State Name</label>
+                    <label className="mt-3">Pin Code</label>
                     <input
                       className="form-control"
                       type="text"
-                      value={addFormData.name}
+                      value={addFormData.pincode}
                       onChange={(e) =>
-                        setAddFormData({ ...addFormData, name: e.target.value })
+                        setAddFormData({ ...addFormData, pincode: e.target.value })
                       }
                     />
 
@@ -512,20 +494,20 @@ function StateList() {
                     <button
                       className="btn btn-success w-100 mt-4"
                       onClick={
-                        addFormData?.name &&
+                        addFormData?.pincode &&
                         addFormData?.status &&
                         !isLoading
-                          ? handleAddStateFunc
+                          ? handleAddPincodeFunc
                           : undefined
                       }
                       disabled={
-                        !addFormData?.name ||
+                        !addFormData?.pincode ||
                         !addFormData?.status ||
                         isLoading
                       }
                       style={{
                         opacity:
-                          !addFormData?.name ||
+                          !addFormData?.pincode ||
                           !addFormData?.status ||
                           isLoading
                             ? "0.5"
@@ -563,7 +545,7 @@ function StateList() {
                   style={{ height: "20px" }}
                   onClick={() =>
                     setEditFormData({
-                      name: "",
+                      pincode: "",
                       status: "",
                       _id: "",
                     })
@@ -580,19 +562,19 @@ function StateList() {
                   className="d-flex justify-content-center w-100"
                 >
                   <div className="w-100 px-2">
-                    <h5 className="mb-4">Update State</h5>
+                    <h5 className="mb-4">Update Pincode</h5>
 
-                    <label className="mt-3">State Name</label>
+                    <label className="mt-3">Pin Code</label>
                     <input
                       className="form-control"
                       type="text"
                       onChange={(e) =>
                         setEditFormData({
                           ...editFormData,
-                          name: e.target.value,
+                          pincode: e.target.value,
                         })
                       }
-                      value={editFormData?.name}
+                      value={editFormData?.pincode}
                     />
 
                     
@@ -613,11 +595,11 @@ function StateList() {
                       <option value={false}>Inactive</option>
                     </select>
 
-                    {editFormData?.name &&
+                    {editFormData?.pincode &&
                     editFormData?.status ? (
                       <button
                         className="btn btn-success w-100 mt-4"
-                        onClick={!isLoading && handleUpdateStateFunc}
+                        onClick={!isLoading && handleUpdatePincodeFunc}
                       >
                         {isLoading ? "Saving..." : "Submit"}
                       </button>
@@ -642,4 +624,4 @@ function StateList() {
   );
 }
 
-export default StateList;
+export default PincodeList;

@@ -46,6 +46,7 @@ import StateList from '../Pages/Location/StateList';
 import CityList from '../Pages/Location/CityList';
 import OrderInvoice from '../Pages/Order/OrderInvoice';
 import ProductDetails from '../Pages/Product/ProuctDetails';
+import PincodeList from '../Pages/Location/PinCodeList';
 
 
 function AuthenticatedRoutes() {
@@ -139,6 +140,7 @@ function AuthenticatedRoutes() {
         {/* location list  */}
         <Route path='/state-list' element={<StateList />} />
         <Route path='/city-list' element={<CityList />} />
+        <Route path='/pin-code' element={<PincodeList />} />
 
     </Routes>
   )

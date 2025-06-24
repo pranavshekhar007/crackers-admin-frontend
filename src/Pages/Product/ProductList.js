@@ -5,6 +5,8 @@ import {
   getProductServ,
   updateProductServ,
   deleteProductServ,
+  uploadExcelServ,
+  downloadProductExportServ,
 } from "../../services/product.services";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
@@ -14,6 +16,7 @@ import moment from "moment";
 import NoRecordFound from "../../Components/NoRecordFound";
 import { useNavigate } from "react-router-dom";
 import { getCategoryServ } from "../../services/category.service";
+import { triggerFileDownload } from "../../utils/fileDownload";
 function ProductList() {
   const navigate = useNavigate();
   const [list, setList] = useState([]);
@@ -91,22 +94,6 @@ function ProductList() {
       toast.error("Internal Server Error");
     }
   };
-  const handleDeleteProductFunc = async (id) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this product?"
-    );
-    if (confirmed) {
-      try {
-        let response = await deleteProductServ(id);
-        if (response?.data?.statusCode == "200") {
-          toast.success(response?.data?.message);
-          handleGetProductFunc();
-        }
-      } catch (error) {
-        toast.error("Internal Server Error");
-      }
-    }
-  };
 
   const [categoryList, setCategoryList] = useState([]);
 
@@ -142,6 +129,41 @@ function ProductList() {
     }
   };
 
+  const handleBulkUpload = async () => {
+    if (!bulkForm.name || !bulkForm.file) {
+      toast.error("Please enter a name and select a file");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", bulkForm.file);
+
+    try {
+      const res = await uploadExcelServ(formData);
+      if (res?.data?.statusCode === 200) {
+        toast.success("Bulk upload successful!");
+        console.log("Parsed Data:", res?.data);
+        setShowBulkModal(false);
+        setBulkForm({ name: "", file: null });
+        handleGetProductFunc(); 
+      } else {
+        toast.error("Upload failed");
+      }
+    } catch (err) {
+      toast.error("Server Error during upload");
+      console.error(err);
+    }
+  };
+
+  const handleDownload = async (format) => {
+    try {
+      const response = await downloadProductExportServ(payload, format);
+      const ext = format === "excel" ? "xlsx" : format;
+      triggerFileDownload(response.data, `productList.${ext}`);
+    } catch (err) {
+      toast.error("Download failed");
+    }
+  };
   return (
     <div className="bodyContainer">
       <Sidebar selectedMenu="Product Management" selectedItem="Products" />
@@ -181,7 +203,7 @@ function ProductList() {
             <div className="col-lg-2 mb-2 col-md-12 col-12">
               <h3 className="mb-0 text-bold text-secondary">Products</h3>
             </div>
-            <div className="col-lg-4 mb-2 col-md-12 col-12">
+            <div className="col-lg-2 mb-2 col-md-12 col-12">
               <div>
                 <input
                   className="form-control borderRadius24"
@@ -232,7 +254,7 @@ function ProductList() {
                 Add Product
               </button>
             </div>
-            {/* <div className="col-lg-2 mb-2 col-md-6 col-12">
+            <div className="col-lg-2 mb-2 col-md-6 col-12">
               <button
                 className="btn w-100 borderRadius24 text-light p-2"
                 style={{ background: "#354f52" }}
@@ -240,7 +262,44 @@ function ProductList() {
               >
                 Add Bulk Products
               </button>
-            </div> */}
+            </div>
+            <div className="col-lg-2 mb-2 col-md-6 col-12 dropdown">
+              <button
+                className="btn w-100 borderRadius24 text-light p-2 dropdown-toggle"
+                style={{ background: "#227C9D" }}
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                Download
+              </button>
+              <ul className="dropdown-menu w-100">
+                <li>
+                  <button
+                    className="dropdown-item"
+                    onClick={() => handleDownload("txt")}
+                  >
+                    Download as TXT
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className="dropdown-item"
+                    onClick={() => handleDownload("excel")}
+                  >
+                    Download as Excel
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className="dropdown-item"
+                    onClick={() => handleDownload("csv")}
+                  >
+                    Download as CSV
+                  </button>
+                </li>
+              </ul>
+            </div>
           </div>
           <div className="mt-3">
             <div className="card-body px-2">
@@ -425,16 +484,15 @@ function ProductList() {
                                 </td>
 
                                 <td className="text-center">
-                                
-                                    <button
-                                      className="btn btn-sm btn-outline-info"
-                                      onClick={() =>
-                                        navigate(`/product-details/${v?._id}`)
-                                      }
-                                    >
-                                      View
-                                    </button>
-                                 
+                                  <button
+                                    className="btn btn-sm btn-outline-info"
+                                    onClick={() =>
+                                      navigate(`/product-details/${v?._id}`)
+                                    }
+                                  >
+                                    View
+                                  </button>
+
                                   {/* <a
                                     className="btn btn-info mx-2 text-light shadow-sm"
                                     onClick={() =>
@@ -720,11 +778,11 @@ function ProductList() {
 
                       <button
                         className="btn btn-primary w-100 mt-3"
-                        // onClick={handleBulkUpload}
-                        // disabled={!bulkForm.name || !bulkForm.file}
-                        // style={{
-                        //   opacity: !bulkForm.name || !bulkForm.file ? 0.6 : 1,
-                        // }}
+                        onClick={handleBulkUpload}
+                        disabled={!bulkForm.name || !bulkForm.file}
+                        style={{
+                          opacity: !bulkForm.name || !bulkForm.file ? 0.6 : 1,
+                        }}
                       >
                         Upload
                       </button>

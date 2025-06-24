@@ -147,3 +147,28 @@ export const getProductsByCategoryServ = async (categoryId)=> {
     throw error;
   }
 }
+
+export const uploadExcelServ = async (formData)=> {
+  try {
+    const response = await axios.post(BASE_URL + "excel/upload", formData);
+    return response;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+}
+
+export const downloadProductExportServ = async (payload, format = "excel") => {
+  try {
+    const response = await axios.post(`${BASE_URL}excel/export`, {
+      ...payload,
+      format,
+    }, {
+      responseType: "blob",
+    });
+    return response;
+  } catch (error) {
+    console.error("Error exporting product list:", error);
+    throw error;
+  }
+};

@@ -88,6 +88,10 @@ function Sidebar({ selectedMenu, selectedItem }) {
       menu: "Location Management",
       subMenu: [
         {
+          name: "Pincode",
+          path: "/pin-code",
+        },
+        {
           name: "States",
           path: "/state-list",
         },

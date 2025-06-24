@@ -19,10 +19,18 @@ import "react-toastify/dist/ReactToastify.css";
 import moment from "moment";
 import NoRecordFound from "../../Components/NoRecordFound";
 import { useNavigate } from "react-router-dom";
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
+
 function OrderList() {
   const navigate = useNavigate();
   const [list, setList] = useState([]);
+  const [order, setOrder] = useState(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const handleOpenPaymentModal = () => setShowPaymentModal(true);
+  const handleClosePaymentModal = () => setShowPaymentModal(false);
   const [statics, setStatics] = useState(null);
+
   const [payload, setPayload] = useState({
     searchKey: "",
     status: "",
@@ -38,6 +46,7 @@ function OrderList() {
     }
     try {
       let response = await getBookingListServ({ ...payload });
+      setOrder(response?.data?.data);
       setList(response?.data?.data);
       setStatics(response?.data?.documentCount);
     } catch (error) {}
@@ -50,14 +59,36 @@ function OrderList() {
       bgColor: "#6777EF",
     },
     {
+      title: "Pending",
+      count: statics?.pending,
+      bgColor: "#FF4500",
+    },
+    {
       title: "Completed Order",
-      count: statics?.activeCount,
+      count: statics?.completed,
       bgColor: "#63ED7A",
     },
     {
       title: "Cancelled Order",
-      count: statics?.inactiveCount,
+      count: statics?.cancelled,
       bgColor: "#FFA426",
+    },
+    
+    {
+      title: "Shipped",
+      count: statics?.shipping,
+      bgColor: "#00B8D9",
+    },
+    
+    {
+      title: "Order Placed",
+      count: statics?.orderPlaced,
+      bgColor: "#007BFF",
+    },
+    {
+      title: "Order Packed",
+      count: statics?.orderPacked,
+      bgColor: "#6610F2",
     },
   ];
   useEffect(() => {
@@ -101,26 +132,7 @@ function OrderList() {
     }
     setIsLoading(false);
   };
-  const handleDeleteCategoryFunc = async (id) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this category?"
-    );
-    if (confirmed) {
-      try {
-        let response = await deleteCategoryServ(id);
-        if (response?.data?.statusCode == "200") {
-          toast?.success(response?.data?.message);
-          handleGetCategoryFunc();
-        }
-      } catch (error) {
-        toast.error(
-          error?.response?.data?.message
-            ? error?.response?.data?.message
-            : "Internal Server Error"
-        );
-      }
-    }
-  };
+
   const [editFormData, setEditFormData] = useState({
     name: "",
     image: "",
@@ -161,31 +173,14 @@ function OrderList() {
     setIsLoading(false);
   };
   const deliveryStatusOptions = [
-    { label: "Select Delivery Status", value: "" },
+    { label: "All", value: "" },
     { label: "Order Placed", value: "orderPlaced" },
     { label: "Order Packed", value: "orderPacked" },
-    { label: "Shipping", value: "shipping" },
+    { label: "Shipped", value: "shipping" },
     { label: "Out for delivery", value: "outForDelivery" },
-    { label: "Delivered", value: "delivered" },
+    { label: "Completed", value: "completed" },
     { label: "Cancelled", value: "cancelled" },
   ];
-  const renderStatusFunction = (status) => {
-    if (status == "orderPlaced") {
-      return "New Request";
-    }
-    if (status == "orderPacked") {
-      return "Order Packed";
-    }
-    if (status == "outForDelivery") {
-      return "Out for delivery";
-    }
-    if (status == "completed") {
-      return "Completed";
-    }
-    if (status == "cancelled") {
-      return "Cancelled";
-    }
-  };
 
   const [updatedStatuses, setUpdatedStatuses] = useState({});
   const [statusUpdating, setStatusUpdating] = useState({});
@@ -198,8 +193,12 @@ function OrderList() {
   };
 
   const handleStatusUpdate = async (bookingId) => {
-    const status = updatedStatuses[bookingId];
+    let status = updatedStatuses[bookingId];
     if (!status) return alert("Please select a status before updating.");
+
+    // if (status === "ssRejected") {
+    //   status = "pending";
+    // }
 
     setStatusUpdating((prev) => ({ ...prev, [bookingId]: true }));
 
@@ -208,6 +207,7 @@ function OrderList() {
 
       if (res.status === 200) {
         alert("Status updated successfully!");
+        handleGetCategoryFunc();
       } else {
         alert("Failed to update status");
       }
@@ -216,6 +216,90 @@ function OrderList() {
       alert("Something went wrong");
     } finally {
       setStatusUpdating((prev) => ({ ...prev, [bookingId]: false }));
+    }
+  };
+
+  const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+    if (statics?.totalCount && payload.pageCount) {
+      const pages = Math.ceil(statics.totalCount / payload.pageCount);
+      setTotalPages(pages);
+    }
+  }, [statics, payload.pageCount]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setPayload({ ...payload, pageNo: newPage });
+    }
+  };
+
+  const getStatusOptions = (currentStatus) => {
+    switch (currentStatus) {
+      case "pending":
+        return [
+          { label: "Pending", value: "pending" },
+          { label: "Approved", value: "approved" },
+          { label: "Reject", value: "ssRejected" },
+          { label: "Cancelled", value: "cancelled" },
+        ];
+      case "approved":
+        return [
+          { label: "Approved", value: "" },
+          { label: "Order Placed", value: "orderPlaced" },
+          { label: "Cancelled", value: "cancelled" },
+        ];
+      case "orderPlaced":
+        return [
+          { label: "orderPlaced", value: "" },
+          { label: "Order Packed", value: "orderPacked" },
+          { label: "Cancelled", value: "cancelled" },
+        ];
+        case "orderPacked":
+        return [
+          { label: "orderPacked", value: "" },
+          { label: "Shipping", value: "shipping" },
+          { label: "Cancelled", value: "cancelled" },
+        ];
+      case "shipping":
+        return [
+          { label: "Shipped", value: "" },
+          { label: "Home Delivery", value: "homeDelivery" },
+          { label: "Lorry Pay", value: "lorryPay" },
+          { label: "Cancelled", value: "cancelled" },
+        ];
+      case "homeDelivery":
+      case "lorryPay":
+        return [
+          { label: "Select Status", value: "" },
+          { label: "Out for Delivery", value: "outForDelivery" },
+          { label: "Cancelled", value: "cancelled" },
+        ];
+      case "outForDelivery":
+        return [
+          { label: "OutForDelivery", value: "" },
+          { label: "Completed", value: "completed" },
+          { label: "Cancelled", value: "cancelled" },
+        ];
+      case "completed":
+        return [
+          { label: "Completed", value: "completed" },
+        ];
+      case "cancelled":
+        return [{ label: "Cancelled", value: "cancelled" }];
+      case "ssRejected":
+        return [
+          { label: "Pending", value: "pending" },
+          { label: "Reject", value: "ssRejected" },
+          { label: "Approved", value: "approved" },
+          { label: "Cancelled", value: "cancelled" },
+        ];
+      default:
+        return [
+          { label: "Select Status", value: "" },
+          { label: "Pending", value: "pending" },
+          { label: "Cancelled", value: "cancelled" },
+        ];
     }
   };
 
@@ -281,9 +365,16 @@ function OrderList() {
               <table className="table table-bordered table-striped">
                 <thead className="thead-dark">
                   <tr>
+                    <th
+                      className="text-center py-3"
+                      style={{ borderRadius: "30px 0px 0px 30px" }}
+                    >
+                      Sr. No
+                    </th>
                     <th>Order ID</th>
                     <th>Created</th>
                     <th>Customer</th>
+                    <th>Payment Status</th>
                     <th>Status</th>
                     <th>Updated</th>
                     <th>Action</th>
@@ -331,6 +422,9 @@ function OrderList() {
                   ) : (
                     list.map((item, index) => (
                       <tr key={index}>
+                        <td className="text-center">
+                          {(payload.pageNo - 1) * payload.pageCount + index + 1}
+                        </td>
                         <td>{item?._id?.substring(0, 10) || "-"}</td>
                         <td>{moment(item?.createdAt).format("DD MMM YYYY")}</td>
                         <td>
@@ -359,6 +453,37 @@ function OrderList() {
                           </div>
                         </td>
                         <td>
+                          <div style={{ fontSize: "14px" }}>
+                            <div>Txn ID: #{item?.paymentId || "N/A"}</div>
+                            <div>Mode: {item?.modeOfPayment || "-"}</div>
+                            <div>Paid: ₹{item?.totalAmount || "-"}</div>
+                            <div className="d-flex align-items-center mt-1">
+                              <div>
+                                Payment Screenshot:{" "}
+                                {item?.paymentSs ? (
+                                  <span className="text-success">Uploaded</span>
+                                ) : (
+                                  <span className="text-danger">
+                                    Not Uploaded
+                                  </span>
+                                )}
+                              </div>
+                              {item?.paymentSs && (
+                                <button
+                                  className="btn btn-sm btn-link text-primary ms-2"
+                                  onClick={() => {
+                                    setOrder(item); // set selected item
+                                    handleOpenPaymentModal();
+                                  }}
+                                >
+                                  <i className="fa fa-eye"></i>
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+
+                        <td>
                           <select
                             value={updatedStatuses[item._id] || item?.status}
                             onChange={(e) =>
@@ -366,12 +491,13 @@ function OrderList() {
                             }
                             className="form-select"
                           >
-                            {deliveryStatusOptions.map((opt, idx) => (
+                            {getStatusOptions(item?.status).map((opt, idx) => (
                               <option key={idx} value={opt.value}>
                                 {opt.label}
                               </option>
                             ))}
                           </select>
+
                           <button
                             onClick={() => handleStatusUpdate(item._id)}
                             className="btn btn-sm btn-primary mt-2"
@@ -402,6 +528,94 @@ function OrderList() {
                   )}
                 </tbody>
               </table>
+              <div className="d-flex flex-column flex-md-row justify-content-center align-items-center gap-5 px-3 py-3 mt-4">
+                <div className="d-flex align-items-center gap-2">
+                  <span className="fw-semibold text-secondary">Show</span>
+                  <select
+                    className="form-select form-select-sm custom-select"
+                    value={payload.pageCount}
+                    onChange={(e) =>
+                      setPayload({
+                        ...payload,
+                        pageCount: parseInt(e.target.value),
+                        pageNo: 1,
+                      })
+                    }
+                  >
+                    {[10, 25, 50, 100].map((v) => (
+                      <option key={v} value={v}>
+                        {v}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <nav>
+                  <ul className="pagination pagination-sm mb-0 custom-pagination">
+                    <li
+                      className={`page-item ${
+                        payload.pageNo === 1 ? "disabled" : ""
+                      }`}
+                    >
+                      <button
+                        className="page-link"
+                        onClick={() => handlePageChange(payload.pageNo - 1)}
+                      >
+                        &lt;
+                      </button>
+                    </li>
+
+                    {[...Array(totalPages)].map((_, i) => {
+                      const page = i + 1;
+                      if (
+                        page === 1 ||
+                        page === totalPages ||
+                        (page >= payload.pageNo - 1 &&
+                          page <= payload.pageNo + 1)
+                      ) {
+                        return (
+                          <li
+                            key={page}
+                            className={`page-item ${
+                              payload.pageNo === page ? "active" : ""
+                            }`}
+                          >
+                            <button
+                              className="page-link"
+                              onClick={() => handlePageChange(page)}
+                            >
+                              {page}
+                            </button>
+                          </li>
+                        );
+                      } else if (
+                        (page === payload.pageNo - 2 && page > 2) ||
+                        (page === payload.pageNo + 2 && page < totalPages - 1)
+                      ) {
+                        return (
+                          <li key={page} className="page-item disabled">
+                            <span className="page-link">...</span>
+                          </li>
+                        );
+                      }
+                      return null;
+                    })}
+
+                    <li
+                      className={`page-item ${
+                        payload.pageNo === totalPages ? "disabled" : ""
+                      }`}
+                    >
+                      <button
+                        className="page-link"
+                        onClick={() => handlePageChange(payload.pageNo + 1)}
+                      >
+                        &gt;
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
             </div>
           </div>
         </div>
@@ -665,6 +879,23 @@ function OrderList() {
         </div>
       )}
       {editFormData?._id && <div className="modal-backdrop fade show"></div>}
+      <Modal show={showPaymentModal} onHide={handleClosePaymentModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Payment Screenshot</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="text-center">
+          <img
+            src={order?.paymentSs}
+            alt="Payment Screenshot"
+            className="img-fluid rounded"
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClosePaymentModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }

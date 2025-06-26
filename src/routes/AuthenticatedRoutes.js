@@ -47,6 +47,8 @@ import CityList from '../Pages/Location/CityList';
 import OrderInvoice from '../Pages/Order/OrderInvoice';
 import ProductDetails from '../Pages/Product/ProuctDetails';
 import PincodeList from '../Pages/Location/PinCodeList';
+import AreaList from '../Pages/Location/AreaList';
+import BulkUpload from '../Pages/Location/BulkUpload';
 
 
 function AuthenticatedRoutes() {
@@ -141,6 +143,8 @@ function AuthenticatedRoutes() {
         <Route path='/state-list' element={<StateList />} />
         <Route path='/city-list' element={<CityList />} />
         <Route path='/pin-code' element={<PincodeList />} />
+        <Route path='/area' element={<AreaList />} />
+        <Route path='/bulk-upload' element={<BulkUpload />} />
 
     </Routes>
   )

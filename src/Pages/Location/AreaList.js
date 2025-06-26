@@ -9,16 +9,21 @@ import moment from "moment";
 import NoRecordFound from "../../Components/NoRecordFound";
 import Modal from "react-bootstrap/Modal";
 import {
-  addCityServ,
-  deleteCityServ,
+  addAreaServ,
+  deleteAreaServ,
+  getAreaServ,
+  getCityByStateServ,
   getCityServ,
+  getPincodeServ,
   getStateServ,
-  updateCityServ,
+  updateAreaServ,
 } from "../../services/location.services";
 
-function CityList() {
+function AreaList() {
   const [list, setList] = useState([]);
   const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [pincodes, setPincodes] = useState([]);
   const [payload, setPayload] = useState({
     searchKey: "",
     stateId: "",
@@ -31,21 +36,24 @@ function CityList() {
   const [addFormData, setAddFormData] = useState({
     name: "",
     state: "",
-    status: "",
+    city: "",
+    pincode: "",
     minimumPrice: "",
+    deliveryCharge: "",
+    status: "",
     _id: "",
   });
 
-  const handleGetCities = async () => {
+  const handleGetArea = async () => {
     if (list.length == 0) {
       setShowSkelton(true);
     }
     try {
-      const res = await getCityServ(payload);
+      const res = await getAreaServ(payload);
       setList(res.data.data);
       setStatics(res.data.documentCount);
     } catch (error) {
-      toast.error("Failed to load cities");
+      toast.error("Failed to load Area");
     }
     setShowSkelton(false);
   };
@@ -59,27 +67,53 @@ function CityList() {
     }
   };
 
+//   const handleGetCity = async () => {
+//     try {
+//       const res = await getCityServ();
+//       setCities(res.data.data);
+//     } catch (error) {
+//       toast.error("Failed to load City");
+//     }
+//   };
+
+  const handleGetPincode = async () => {
+    try {
+      const res = await getPincodeServ();
+      setPincodes(res.data.data);
+    } catch (error) {
+      toast.error("Failed to load City");
+    }
+  };
+
   useEffect(() => {
     handleGetStates();
   }, []);
 
+//   useEffect(() => {
+//     handleGetCity();
+//   }, []);
+
   useEffect(() => {
-    handleGetCities();
+    handleGetPincode();
+  }, []);
+
+  useEffect(() => {
+    handleGetArea();
   }, [payload]);
 
   const staticsArr = [
     {
-      title: "Total City",
+      title: "Total Area",
       count: statics?.totalCount,
       bgColor: "#6777EF",
     },
     {
-      title: "Active City",
+      title: "Active Area",
       count: statics?.activeCount,
       bgColor: "#63ED7A",
     },
     {
-      title: "Inactive City",
+      title: "Inactive Area",
       count: statics?.inactiveCount,
       bgColor: "#FFA426",
     },
@@ -87,20 +121,23 @@ function CityList() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleAddCityFunc = async () => {
+  const handleAddAreaFunc = async () => {
     setIsLoading(true);
     try {
-      const response = await addCityServ(addFormData);
+      const response = await addAreaServ(addFormData);
       if (response?.data?.statusCode === 200) {
-        toast.success(response?.data?.message || "City added successfully!");
+        toast.success(response?.data?.message || "Area added successfully!");
         setAddFormData({
           name: "",
           state: "",
+          city: "",
+          pincode: "",
           minimumPrice: "",
+          deliveryCharge: "",
           status: "",
           _id: "",
         });
-        handleGetCities();
+        handleGetArea();
       }
     } catch (error) {
       toast.error(error?.response?.data?.message || "Internal Server Error");
@@ -108,16 +145,16 @@ function CityList() {
     setIsLoading(false);
   };
 
-  const handleDeleteCity = async (id) => {
+  const handleDeleteArea = async (id) => {
     const confirmed = window.confirm(
-      "Are you sure you want to delete this city?"
+      "Are you sure you want to delete this Area?"
     );
     if (confirmed) {
       try {
-        let response = await deleteCityServ(id);
+        let response = await deleteAreaServ(id);
         if (response?.data?.statusCode == "200") {
           toast?.success(response?.data?.message);
-          handleGetCities();
+          handleGetArea();
         }
       } catch (error) {
         toast.error(
@@ -131,25 +168,31 @@ function CityList() {
   const [editFormData, setEditFormData] = useState({
     name: "",
     state: "",
-    status: "",
+    city: "",
+    pincode: "",
     minimumPrice: "",
+    deliveryCharge: "",
+    status: "",
     _id: "",
   });
-  const handleUpdateCityFunc = async () => {
+  const handleUpdateAreaFunc = async () => {
     setIsLoading(true);
 
     try {
-      let response = await updateCityServ(editFormData);
+      let response = await updateAreaServ(editFormData);
       if (response?.data?.statusCode == "200") {
-        toast.success(response?.data?.message || "City updated successfully!");
+        toast.success(response?.data?.message || "Area updated successfully!");
         setEditFormData({
           name: "",
           state: "",
-          status: "",
+          city: "",
+          pincode: "",
           minimumPrice: "",
+          deliveryCharge: "",
+          status: "",
           _id: "",
         });
-        handleGetCities();
+        handleGetArea();
       }
     } catch (error) {
       toast.error(
@@ -178,7 +221,7 @@ function CityList() {
 
   return (
     <div className="bodyContainer">
-      <Sidebar selectedMenu="Location Management" selectedItem="City" />
+      <Sidebar selectedMenu="Location Management" selectedItem="Area" />
       <div className="mainContainer">
         <TopNav />
         <div className="p-lg-4 p-md-3 p-2">
@@ -213,7 +256,7 @@ function CityList() {
           </div>
           <div className="row m-0 p-0 d-flex align-items-center my-4 topActionForm">
             <div className="col-lg-2 mb-2 col-md-12 col-12">
-              <h3 className="mb-0 text-bold text-secondary">City</h3>
+              <h3 className="mb-0 text-bold text-secondary">Area</h3>
             </div>
             <div className="col-lg-4 mb-2 col-md-12 col-12">
               <div>
@@ -252,7 +295,7 @@ function CityList() {
                   style={{ background: "#6777EF" }}
                   onClick={() => setAddFormData({ ...addFormData, show: true })}
                 >
-                  Add City
+                  Add Area
                 </button>
               </div>
             </div>
@@ -270,7 +313,7 @@ function CityList() {
                         Sr. No
                       </th>
 
-                      <th className="text-center py-3">City Name</th>
+                      <th className="text-center py-3">Area Name</th>
                       <th className="text-center py-3">Minimum price</th>
                       <th className="text-center py-3">Status</th>
                       <th className="text-center py-3">Created At</th>
@@ -356,9 +399,13 @@ function CityList() {
                                     onClick={() => {
                                       setEditFormData({
                                         name: v?.name,
-                                        status: v?.status,
+                                        city: v?.city?._id || v?.city || "",
                                         state: v?.state?._id || v?.state || "",
+                                        pincode:
+                                          v?.pincode?._id || v?.pincode || "",
                                         minimumPrice: v?.minimumPrice || "",
+                                        deliveryCharge: v?.deliveryCharge || "",
+                                        status: v?.status,
                                         _id: v?._id,
                                       });
                                     }}
@@ -367,7 +414,7 @@ function CityList() {
                                     Edit
                                   </a>
                                   <a
-                                    onClick={() => handleDeleteCity(v?._id)}
+                                    onClick={() => handleDeleteArea(v?._id)}
                                     className="btn btn-warning mx-2 text-light shadow-sm"
                                   >
                                     Delete
@@ -487,6 +534,8 @@ function CityList() {
                 borderRadius: "16px",
                 background: "#f7f7f5",
                 width: "364px",
+                maxHeight: "90vh",
+                overflowY: "auto", 
               }}
             >
               <div className="d-flex justify-content-end pt-4 pb-0 px-4">
@@ -495,9 +544,12 @@ function CityList() {
                   style={{ height: "20px", cursor: "pointer" }}
                   onClick={() =>
                     setAddFormData({
-                      state: "",
                       name: "",
+                      state: "",
+                      city: "",
+                      pincode: "",
                       minimumPrice: "",
+                      deliveryCharge: "",
                       status: "",
                       show: false,
                     })
@@ -508,18 +560,42 @@ function CityList() {
               <div className="modal-body">
                 <div className="d-flex justify-content-center w-100">
                   <div className="w-100 px-2">
-                    <h5 className="mb-4">Add City</h5>
+                    <h5 className="mb-4">Add Area</h5>
+
+                    <label className="mt-3">Area Name</label>
+                    <input
+                      className="form-control"
+                      type="text"
+                      value={addFormData.name}
+                      onChange={(e) =>
+                        setAddFormData({ ...addFormData, name: e.target.value })
+                      }
+                    />
 
                     <label className="mt-3">State</label>
                     <select
                       className="form-control"
                       value={addFormData.state}
-                      onChange={(e) =>
+                      onChange={async (e) => {
+                        const stateId = e.target.value;
                         setAddFormData({
                           ...addFormData,
-                          state: e.target.value,
-                        })
-                      }
+                          state: stateId,
+                          city: "",
+                        });
+                      
+                        if (stateId) {
+                          try {
+                            const res = await getCityByStateServ(stateId);
+                            setCities(res.data.data);
+                          } catch (err) {
+                            toast.error("Failed to load cities for selected state");
+                          }
+                        } else {
+                          setCities([]);
+                        }
+                      }}
+                      
                     >
                       <option value="">Select State</option>
                       {states.map((state) => (
@@ -529,15 +605,43 @@ function CityList() {
                       ))}
                     </select>
 
-                    <label className="mt-3">City Name</label>
-                    <input
+                    <label className="mt-3">City</label>
+                    <select
                       className="form-control"
-                      type="text"
-                      value={addFormData.name}
+                      value={addFormData.city}
                       onChange={(e) =>
-                        setAddFormData({ ...addFormData, name: e.target.value })
+                        setAddFormData({
+                          ...addFormData,
+                          city: e.target.value,
+                        })
                       }
-                    />
+                    >
+                      <option value="">Select City</option>
+                      {cities.map((city) => (
+                        <option key={city._id} value={city._id}>
+                          {city.name}
+                        </option>
+                      ))}
+                    </select>
+
+                    <label className="mt-3">Pin Code</label>
+                    <select
+                      className="form-control"
+                      value={addFormData.pincode}
+                      onChange={(e) =>
+                        setAddFormData({
+                          ...addFormData,
+                          pincode: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="">Select Pincode</option>
+                      {pincodes.map((pincode) => (
+                        <option key={pincode._id} value={pincode._id}>
+                          {pincode.pincode}
+                        </option>
+                      ))}
+                    </select>
 
                     <label className="mt-3">Status</label>
                     <select
@@ -569,27 +673,50 @@ function CityList() {
                       }
                     />
 
+                    <label className="mt-3">Delivery Charge</label>
+                    <input
+                      className="form-control"
+                      type="number"
+                      min="0"
+                      value={addFormData.deliveryCharge}
+                      onChange={(e) =>
+                        setAddFormData({
+                          ...addFormData,
+                          deliveryCharge: e.target.value,
+                        })
+                      }
+                    />
+
                     <button
                       className="btn btn-success w-100 mt-4"
                       onClick={
                         addFormData.name &&
                         addFormData?.state &&
-                        addFormData.minimumPrice &&
+                        addFormData?.city &&
+                        addFormData?.pincode &&
+                        addFormData?.minimumPrice &&
+                        addFormData?.deliveryCharge &&
                         !isLoading
-                          ? handleAddCityFunc
+                          ? handleAddAreaFunc
                           : undefined
                       }
                       disabled={
                         !addFormData.name ||
                         !addFormData?.state ||
-                        !addFormData.minimumPrice ||
+                        !addFormData?.city ||
+                        !addFormData?.pincode ||
+                        !addFormData?.minimumPrice ||
+                        !addFormData?.deliveryCharge ||
                         isLoading
                       }
                       style={{
                         opacity:
                           !addFormData.name ||
                           !addFormData?.state ||
-                          !addFormData.minimumPrice ||
+                          !addFormData?.city ||
+                          !addFormData?.pincode ||
+                          !addFormData?.minimumPrice ||
+                          !addFormData?.deliveryCharge ||
                           isLoading
                             ? "0.5"
                             : "1",
@@ -618,6 +745,8 @@ function CityList() {
                 borderRadius: "16px",
                 background: "#f7f7f5",
                 width: "364px",
+                maxHeight: "90vh",
+                overflowY: "auto", 
               }}
             >
               <div className="d-flex justify-content-end pt-4 pb-0 px-4">
@@ -628,7 +757,11 @@ function CityList() {
                     setEditFormData({
                       name: "",
                       state: "",
+                      city: "",
+                      pincode: "",
                       minimumPrice: "",
+                      deliveryCharge: "",
+                      status: "",
                       _id: "",
                     })
                   }
@@ -638,9 +771,9 @@ function CityList() {
               <div className="modal-body">
                 <div className="d-flex justify-content-center w-100">
                   <div className="w-100 px-2">
-                    <h5 className="mb-4">Update City</h5>
+                    <h5 className="mb-4">Update Area</h5>
 
-                    <label className="mt-3">City Name</label>
+                    <label className="mt-3">Area Name</label>
                     <input
                       className="form-control"
                       type="text"
@@ -656,12 +789,25 @@ function CityList() {
                     <label className="mt-3">State</label>
                     <select
                       className="form-control"
-                      onChange={(e) =>
+                      onChange={async (e) => {
+                        const stateId = e.target.value;
                         setEditFormData({
                           ...editFormData,
-                          state: e.target.value,
-                        })
-                      }
+                          state: stateId,
+                          city: "", // reset city when state changes
+                        });
+                      
+                        if (stateId) {
+                          try {
+                            const res = await getCityByStateServ(stateId);
+                            setCities(res.data.data);
+                          } catch (err) {
+                            toast.error("Failed to load cities for selected state");
+                          }
+                        } else {
+                          setCities([]);
+                        }
+                      }}                      
                       value={editFormData?.state}
                     >
                       <option value="">Select State</option>
@@ -672,6 +818,43 @@ function CityList() {
                       ))}
                     </select>
 
+                    <label className="mt-3">City</label>
+                    <select
+                      className="form-control"
+                      onChange={(e) =>
+                        setEditFormData({
+                          ...editFormData,
+                          city: e.target.value,
+                        })
+                      }
+                      value={editFormData?.city}
+                    >
+                      <option value="">Select City</option>
+                      {cities.map((city) => (
+                        <option key={city._id} value={city._id}>
+                          {city.name}
+                        </option>
+                      ))}
+                    </select>
+
+                    <label className="mt-3">Pincode</label>
+                    <select
+                      className="form-control"
+                      onChange={(e) =>
+                        setEditFormData({
+                          ...editFormData,
+                          pincode: e.target.value,
+                        })
+                      }
+                      value={editFormData?.pincode}
+                    >
+                      <option value="">Select Pincode</option>
+                      {pincodes.map((pincode) => (
+                        <option key={pincode._id} value={pincode._id}>
+                          {pincode.pincode}
+                        </option>
+                      ))}
+                    </select>
 
                     <label className="mt-3">Status</label>
                     <select
@@ -702,10 +885,30 @@ function CityList() {
                       }
                       value={editFormData?.minimumPrice}
                     />
-                    {editFormData?.name && editFormData?.state && editFormData?.minimumPrice ? (
+
+                    <label className="mt-3">Delivery Charge</label>
+                    <input
+                      className="form-control"
+                      type="number"
+                      min="0"
+                      onChange={(e) =>
+                        setEditFormData({
+                          ...editFormData,
+                          deliveryCharge: e.target.value,
+                        })
+                      }
+                      value={editFormData?.deliveryCharge}
+                    />
+
+                    {editFormData?.name &&
+                    editFormData?.state &&
+                    editFormData?.city &&
+                    editFormData?.pincode &&
+                    editFormData?.deliveryCharge &&
+                    editFormData?.minimumPrice ? (
                       <button
                         className="btn btn-success w-100 mt-4"
-                        onClick={!isLoading && handleUpdateCityFunc}
+                        onClick={!isLoading && handleUpdateAreaFunc}
                       >
                         {isLoading ? "Saving..." : "Submit"}
                       </button>
@@ -730,4 +933,4 @@ function CityList() {
   );
 }
 
-export default CityList;
+export default AreaList;

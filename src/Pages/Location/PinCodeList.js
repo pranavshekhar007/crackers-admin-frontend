@@ -222,7 +222,7 @@ function PincodeList() {
                         className="text-center py-3"
                         style={{ borderRadius: "30px 0px 0px 30px" }}
                       >
-                        Sr. No
+                        Id
                       </th>
                       <th className="text-center py-3">Pin Code</th>
                       <th className="text-center py-3">Status</th>
@@ -271,12 +271,10 @@ function PincodeList() {
                           return (
                             <>
                               <tr>
-                                <td className="text-center">
-                                  {(payload.pageNo - 1) * payload.pageCount +
-                                    i +
-                                    1}
+                              
+                                <td className="font-weight-600 text-center">
+                                  {v?.pincodeId}
                                 </td>
-
                                 <td className="font-weight-600 text-center">
                                   {v?.pincode}
                                 </td>

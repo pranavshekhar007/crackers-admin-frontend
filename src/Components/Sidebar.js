@@ -99,6 +99,14 @@ function Sidebar({ selectedMenu, selectedItem }) {
           name: "City",
           path: "/city-list",
         },
+        {
+          name: "Area",
+          path: "/area",
+        },
+        {
+          name: "Bulk Upload",
+          path: "/bulk-upload",
+        },
       ],
     },
     

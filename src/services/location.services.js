@@ -148,7 +148,7 @@ export const deletePincodeServ = async (id) => {
 // Get Area List
 export const getAreaServ = async (formData) => {
   try {
-    const response = await axios.post(BASE_URL + "area/list", formData, getConfig());
+    const response = await axios.post(BASE_URL + "area/list", formData);
     return response;
   } catch (error) {
     console.error("Error fetching area list:", error);
@@ -159,7 +159,7 @@ export const getAreaServ = async (formData) => {
 // Add Area
 export const addAreaServ = async (formData) => {
   try {
-    const response = await axios.post(BASE_URL + "area/create", formData, getConfig());
+    const response = await axios.post(BASE_URL + "area/create", formData);
     return response;
   } catch (error) {
     console.error("Error adding area:", error);
@@ -170,7 +170,7 @@ export const addAreaServ = async (formData) => {
 // Update Area
 export const updateAreaServ = async (formData) => {
   try {
-    const response = await axios.put(BASE_URL + "area/update", formData, getConfig());
+    const response = await axios.put(BASE_URL + "area/update", formData);
     return response;
   } catch (error) {
     console.error("Error updating area:", error);
@@ -181,10 +181,52 @@ export const updateAreaServ = async (formData) => {
 // Delete Area
 export const deleteAreaServ = async (id) => {
   try {
-    const response = await axios.delete(BASE_URL + "area/delete/" + id, getConfig());
+    const response = await axios.delete(BASE_URL + "area/delete/" + id);
     return response;
   } catch (error) {
     console.error("Error deleting area:", error);
+    throw error;
+  }
+};
+
+export const getCityByStateServ = async (stateId) => {
+  try {
+    const response = await axios.get(BASE_URL + `city?stateId=${stateId}`);
+    return response;
+  } catch (error) {
+    console.error("Error fetching cities by state:", error);
+    throw error;
+  }
+};
+
+
+// Bulk Location Upload 
+export const bulkUploadLocationServ = async (formData) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}bulk-location/bulk-upload`,
+      formData,
+      getConfig()
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Bulk Upload Error:", error);
+    throw error;
+  }
+};
+
+export const bulkDownloadLocationServ = async (payload) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}bulk-location/bulk-download`,
+      payload,
+      {
+        responseType: "blob",
+      }
+    );
+    return response;
+  } catch (error) {
+    console.error("Bulk download failed:", error);
     throw error;
   }
 };

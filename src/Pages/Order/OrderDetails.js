@@ -56,7 +56,13 @@ const OrderDetails = () => {
 
   const user = order?.userId || {};
   const address = order?.address || {};
-  const products = order?.product || [];
+  const products = [
+    ...(order?.product || []).map((item) => ({ ...item, type: "product" })),
+    ...(order?.comboProduct || []).map((item) => ({
+      ...item,
+      type: "comboProduct",
+    })),
+  ];
 
   const handleOpenPaymentModal = () => setShowPaymentModal(true);
   const handleClosePaymentModal = () => setShowPaymentModal(false);
@@ -158,34 +164,11 @@ const OrderDetails = () => {
                   </thead>
                   <tbody>
                     {products.map((item, i) => {
-                      const isCombo = item?.comboProductId;
-                      const product = item?.productId;
-                      const combo = item?.comboProductId;
-
-                      return (
-                        <tr key={i}>
-                          <td>
-                            {isCombo ? (
-                              <div>
-                                <img
-                                  src={combo?.productHeroImage}
-                                  alt="combo"
-                                  style={{ width: 50 }}
-                                />
-                                <strong className="m-3">{combo?.name}</strong>
-                                <ul className="list-unstyled mb-0 mt-2 text-start">
-                                  {combo?.productId?.map((prodObj, idx) => (
-                                    <li
-                                      key={idx}
-                                      className="mb-1 px-2 py-1 bg-light rounded text-dark"
-                                    >
-                                      {prodObj?.product?.name} (
-                                      {prodObj?.quantity})
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            ) : (
+                      if (item.type === "product") {
+                        const product = item?.productId;
+                        return (
+                          <tr key={`product-${i}`}>
+                            <td>
                               <div>
                                 <img
                                   src={product?.productHeroImage}
@@ -194,35 +177,8 @@ const OrderDetails = () => {
                                 />
                                 <strong className="m-4">{product?.name}</strong>
                               </div>
-                            )}
-                          </td>
-
-                          <td>
-                            {isCombo ? (
-                              <div style={{ lineHeight: "1.2" }}>
-                                <div
-                                  style={{
-                                    fontWeight: "bold",
-                                    fontSize: "16px",
-                                    color: "#28a745",
-                                  }}
-                                >
-                                  ₹{combo?.pricing?.comboPrice}
-                                </div>
-                                {combo?.pricing?.offerPrice && (
-                                  <div
-                                    style={{
-                                      textDecoration: "line-through",
-                                      color: "#888",
-                                      fontSize: "13px",
-                                      marginTop: "4px",
-                                    }}
-                                  >
-                                    ₹{combo?.pricing?.offerPrice}
-                                  </div>
-                                )}
-                              </div>
-                            ) : (
+                            </td>
+                            <td>
                               <div style={{ lineHeight: "1.2" }}>
                                 <div
                                   style={{
@@ -246,23 +202,83 @@ const OrderDetails = () => {
                                   </div>
                                 )}
                               </div>
-                            )}
-                          </td>
-
-                          <td>{item?.quantity || 1}</td>
-
-                          <td>
-                            ₹
-                            {(
-                              (isCombo
-                                ? combo?.pricing?.comboPrice
-                                : product?.discountedPrice ||
+                            </td>
+                            <td>{item?.quantity || 1}</td>
+                            <td>
+                              ₹
+                              {(
+                                (product?.discountedPrice ||
                                   product?.price ||
                                   0) * (item?.quantity || 1) || 0
-                            ).toFixed(2)}
-                          </td>
-                        </tr>
-                      );
+                              ).toFixed(2)}
+                            </td>
+                          </tr>
+                        );
+                      }
+
+                      if (item.type === "comboProduct") {
+                        const combo = item?.comboProductId;
+                        return (
+                          <tr key={`combo-${i}`}>
+                            <td>
+                              <div>
+                                <img
+                                  src={combo?.productHeroImage}
+                                  alt="combo"
+                                  style={{ width: 50 }}
+                                />
+                                <strong className="m-3">{combo?.name}</strong>
+                                <ul className="list-unstyled mb-0 mt-2 text-start">
+                                  {combo?.productId?.map((prodObj, idx) => (
+                                    <li
+                                      key={idx}
+                                      className="mb-1 px-2 py-1 bg-light rounded text-dark"
+                                    >
+                                      {prodObj?.product?.name} (
+                                      {prodObj?.quantity})
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </td>
+                            <td>
+                              <div style={{ lineHeight: "1.2" }}>
+                                <div
+                                  style={{
+                                    fontWeight: "bold",
+                                    fontSize: "16px",
+                                    color: "#28a745",
+                                  }}
+                                >
+                                  ₹{combo?.pricing?.comboPrice}
+                                </div>
+                                {combo?.pricing?.offerPrice && (
+                                  <div
+                                    style={{
+                                      textDecoration: "line-through",
+                                      color: "#888",
+                                      fontSize: "13px",
+                                      marginTop: "4px",
+                                    }}
+                                  >
+                                    ₹{combo?.pricing?.offerPrice}
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                            <td>{item?.quantity || 1}</td>
+                            <td>
+                              ₹
+                              {(
+                                (combo?.pricing?.comboPrice || 0) *
+                                  (item?.quantity || 1) || 0
+                              ).toFixed(2)}
+                            </td>
+                          </tr>
+                        );
+                      }
+
+                      return null;
                     })}
                   </tbody>
                 </table>
@@ -342,7 +358,7 @@ const OrderDetails = () => {
                 <div>{address.fullName}</div>
                 <div>{address.phone}</div>
                 <div>
-                  {address.area}, {address.city}, {address.state} -{" "}
+                  {address.area?.name}, {address.city}, {address.state} -{" "}
                   {address.pincode}
                 </div>
                 <div>{address.country}</div>

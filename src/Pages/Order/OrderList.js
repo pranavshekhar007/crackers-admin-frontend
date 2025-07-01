@@ -73,13 +73,13 @@ function OrderList() {
       count: statics?.cancelled,
       bgColor: "#FFA426",
     },
-    
+
     {
       title: "Shipped",
       count: statics?.shipping,
       bgColor: "#00B8D9",
     },
-    
+
     {
       title: "Order Placed",
       count: statics?.orderPlaced,
@@ -255,7 +255,7 @@ function OrderList() {
           { label: "Order Packed", value: "orderPacked" },
           { label: "Cancelled", value: "cancelled" },
         ];
-        case "orderPacked":
+      case "orderPacked":
         return [
           { label: "orderPacked", value: "" },
           { label: "Shipping", value: "shipping" },
@@ -282,11 +282,13 @@ function OrderList() {
           { label: "Cancelled", value: "cancelled" },
         ];
       case "completed":
-        return [
-          { label: "Completed", value: "completed" },
-        ];
+        return [{ label: "Completed", value: "completed" }];
       case "cancelled":
-        return [{ label: "Cancelled", value: "cancelled" }];
+        return [
+          { label: "Cancelled", value: "cancelled" },
+          { label: "Pending", value: "pending" },
+        ];
+
       case "ssRejected":
         return [
           { label: "Pending", value: "pending" },

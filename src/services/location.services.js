@@ -102,6 +102,16 @@ export const getCityServ = async (formData) => {
     }
   };
 
+  export const getCityByStateServ = async (stateId) => {
+    try {
+      const response = await axios.get(BASE_URL + `city?stateId=${stateId}`);
+      return response;
+    } catch (error) {
+      console.error("Error fetching cities by state:", error);
+      throw error;
+    }
+  };
+
   // Pincode
 
 export const getPincodeServ = async (formData) => {
@@ -140,6 +150,18 @@ export const deletePincodeServ = async (id) => {
     return response;
   } catch (error) {
     console.error("Error deleting pincode:", error);
+    throw error;
+  }
+};
+
+export const getPincodeByCityServ = async (cityId) => {
+  try {
+    const response = await axios.post(BASE_URL + "pin-code/get-by-city", {
+      cityId,
+    });
+    return response;
+  } catch (error) {
+    console.error("Error fetching pincodes by city:", error);
     throw error;
   }
 };
@@ -189,12 +211,14 @@ export const deleteAreaServ = async (id) => {
   }
 };
 
-export const getCityByStateServ = async (stateId) => {
+export const getAreaByPincodeServ = async (pincodeId) => {
   try {
-    const response = await axios.get(BASE_URL + `city?stateId=${stateId}`);
+    const response = await axios.post(BASE_URL + "area/get-by-pincode", {
+      pincodeId,
+    });
     return response;
   } catch (error) {
-    console.error("Error fetching cities by state:", error);
+    console.error("Error fetching areas by pincodeId:", error);
     throw error;
   }
 };

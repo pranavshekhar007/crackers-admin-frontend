@@ -11,9 +11,11 @@ import Modal from "react-bootstrap/Modal";
 import {
   addAreaServ,
   deleteAreaServ,
+  getAreaByPincodeServ,
   getAreaServ,
   getCityByStateServ,
   getCityServ,
+  getPincodeByCityServ,
   getPincodeServ,
   getStateServ,
   updateAreaServ,
@@ -24,6 +26,7 @@ function AreaList() {
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
   const [pincodes, setPincodes] = useState([]);
+  const [areasByPincode, setAreasByPincode] = useState([]);
   const [payload, setPayload] = useState({
     searchKey: "",
     stateId: "",
@@ -33,11 +36,12 @@ function AreaList() {
 
   const [showSkelton, setShowSkelton] = useState(false);
   const [statics, setStatics] = useState(null);
+  const [selectedCityMinimumPrice, setSelectedCityMinimumPrice] = useState("");
   const [addFormData, setAddFormData] = useState({
     name: "",
-    state: "",
-    city: "",
-    pincode: "",
+    stateId: "",
+    cityId: "",
+    pincodeId: "",
     minimumPrice: "",
     deliveryCharge: "",
     status: "",
@@ -67,34 +71,41 @@ function AreaList() {
     }
   };
 
-//   const handleGetCity = async () => {
-//     try {
-//       const res = await getCityServ();
-//       setCities(res.data.data);
-//     } catch (error) {
-//       toast.error("Failed to load City");
-//     }
-//   };
-
-  const handleGetPincode = async () => {
+  const handleGetCityByState = async (stateId) => {
+    if (!stateId) return setCities([]);
     try {
-      const res = await getPincodeServ();
-      setPincodes(res.data.data);
+      const res = await getCityByStateServ(stateId);
+      setCities(res.data.data);
     } catch (error) {
-      toast.error("Failed to load City");
+      toast.error("Failed to load cities for selected state");
     }
   };
 
+  const handleGetPincodeByCity = async (cityId) => {
+    if (!cityId) return setPincodes([]);
+    try {
+      const res = await getPincodeByCityServ(cityId);
+      setPincodes(res.data.data);
+    } catch (error) {
+      toast.error("Failed to load pincodes for selected city");
+    }
+  };
+
+  const handleGetAreasByPincode = async (pincodeId) => {
+    if (!pincodeId) return setAreasByPincode([]);
+    try {
+      const res = await getAreaByPincodeServ(pincodeId);
+      if (res?.data?.statusCode === 200) {
+        setAreasByPincode(res.data.data);
+      }
+    } catch (error) {
+      toast.error("Failed to load areas for selected pincode");
+    }
+  };
+  
+
   useEffect(() => {
     handleGetStates();
-  }, []);
-
-//   useEffect(() => {
-//     handleGetCity();
-//   }, []);
-
-  useEffect(() => {
-    handleGetPincode();
   }, []);
 
   useEffect(() => {
@@ -129,9 +140,9 @@ function AreaList() {
         toast.success(response?.data?.message || "Area added successfully!");
         setAddFormData({
           name: "",
-          state: "",
-          city: "",
-          pincode: "",
+          stateId: "",
+          cityId: "",
+          pincodeId: "",
           minimumPrice: "",
           deliveryCharge: "",
           status: "",
@@ -167,9 +178,9 @@ function AreaList() {
   };
   const [editFormData, setEditFormData] = useState({
     name: "",
-    state: "",
-    city: "",
-    pincode: "",
+    stateId: "",
+    cityId: "",
+    pincodeId: "",
     minimumPrice: "",
     deliveryCharge: "",
     status: "",
@@ -184,9 +195,9 @@ function AreaList() {
         toast.success(response?.data?.message || "Area updated successfully!");
         setEditFormData({
           name: "",
-          state: "",
-          city: "",
-          pincode: "",
+          stateId: "",
+          cityId: "",
+          pincodeId: "",
           minimumPrice: "",
           deliveryCharge: "",
           status: "",
@@ -310,7 +321,7 @@ function AreaList() {
                         className="text-center py-3"
                         style={{ borderRadius: "30px 0px 0px 30px" }}
                       >
-                        Sr. No
+                        Id
                       </th>
 
                       <th className="text-center py-3">Area Name</th>
@@ -361,11 +372,7 @@ function AreaList() {
                           return (
                             <>
                               <tr>
-                                <td className="text-center">
-                                  {(payload.pageNo - 1) * payload.pageCount +
-                                    i +
-                                    1}
-                                </td>
+                                <td className="text-center">{v?.areaId}</td>
 
                                 <td className="font-weight-600 text-center">
                                   {v?.name}
@@ -396,18 +403,25 @@ function AreaList() {
                                 </td>
                                 <td className="text-center">
                                   <a
-                                    onClick={() => {
+                                    onClick={ async () => {
                                       setEditFormData({
                                         name: v?.name,
-                                        city: v?.city?._id || v?.city || "",
-                                        state: v?.state?._id || v?.state || "",
-                                        pincode:
-                                          v?.pincode?._id || v?.pincode || "",
+                                        cityId: v?.cityId || "",
+                                        stateId: v?.stateId || "",
+                                        pincodeId: v?.pincodeId || "",
                                         minimumPrice: v?.minimumPrice || "",
                                         deliveryCharge: v?.deliveryCharge || "",
                                         status: v?.status,
                                         _id: v?._id,
+                                        
                                       });
+                                      if (v?.stateId) {
+                                        await handleGetCityByState(v.stateId);
+                                      }
+                                  
+                                      if (v?.cityId) {
+                                        await handleGetPincodeByCity(v.cityId);
+                                      }
                                     }}
                                     className="btn btn-info mx-2 text-light shadow-sm"
                                   >
@@ -535,7 +549,7 @@ function AreaList() {
                 background: "#f7f7f5",
                 width: "364px",
                 maxHeight: "90vh",
-                overflowY: "auto", 
+                overflowY: "auto",
               }}
             >
               <div className="d-flex justify-content-end pt-4 pb-0 px-4">
@@ -545,9 +559,9 @@ function AreaList() {
                   onClick={() =>
                     setAddFormData({
                       name: "",
-                      state: "",
-                      city: "",
-                      pincode: "",
+                      stateId: "",
+                      cityId: "",
+                      pincodeId: "",
                       minimumPrice: "",
                       deliveryCharge: "",
                       status: "",
@@ -575,31 +589,22 @@ function AreaList() {
                     <label className="mt-3">State</label>
                     <select
                       className="form-control"
-                      value={addFormData.state}
+                      value={addFormData.stateId}
                       onChange={async (e) => {
                         const stateId = e.target.value;
                         setAddFormData({
                           ...addFormData,
-                          state: stateId,
+                          stateId: stateId,
                           city: "",
+                          pincode: "",
                         });
-                      
-                        if (stateId) {
-                          try {
-                            const res = await getCityByStateServ(stateId);
-                            setCities(res.data.data);
-                          } catch (err) {
-                            toast.error("Failed to load cities for selected state");
-                          }
-                        } else {
-                          setCities([]);
-                        }
+                        await handleGetCityByState(stateId);
+                        setPincodes([]);
                       }}
-                      
                     >
                       <option value="">Select State</option>
                       {states.map((state) => (
-                        <option key={state._id} value={state._id}>
+                        <option key={state.stateId} value={state.stateId}>
                           {state.name}
                         </option>
                       ))}
@@ -608,36 +613,67 @@ function AreaList() {
                     <label className="mt-3">City</label>
                     <select
                       className="form-control"
-                      value={addFormData.city}
-                      onChange={(e) =>
+                      value={addFormData.cityId}
+                      onChange={async (e) => {
+                        const cityId = e.target.value;
+
+                        // Find selected city from state
+                        const selectedCity = cities.find(
+                          (city) => city.cityId === parseInt(cityId)
+                        );
+
                         setAddFormData({
                           ...addFormData,
-                          city: e.target.value,
-                        })
-                      }
+                          cityId: cityId,
+                          minimumPrice: selectedCity
+                            ? selectedCity.minimumPrice
+                            : "",
+                          pincode: "",
+                        });
+
+                        setSelectedCityMinimumPrice(
+                          selectedCity ? selectedCity.minimumPrice : ""
+                        );
+
+                        await handleGetPincodeByCity(cityId);
+                      }}
                     >
                       <option value="">Select City</option>
                       {cities.map((city) => (
-                        <option key={city._id} value={city._id}>
+                        <option key={city.cityId} value={city.cityId}>
                           {city.name}
                         </option>
                       ))}
                     </select>
 
+                    {selectedCityMinimumPrice !== "" && (
+                      <div className="mt-2">
+                        <small className="text-muted">
+                          Minimum Price for this city: ₹
+                          {selectedCityMinimumPrice}
+                        </small>
+                      </div>
+                    )}
+
                     <label className="mt-3">Pin Code</label>
                     <select
                       className="form-control"
-                      value={addFormData.pincode}
-                      onChange={(e) =>
+                      value={addFormData.pincodeId}
+                      onChange={async (e) => {
+                        const pincodeId = e.target.value;
                         setAddFormData({
                           ...addFormData,
-                          pincode: e.target.value,
-                        })
-                      }
+                          pincodeId: pincodeId,
+                        });
+                        await handleGetAreasByPincode(pincodeId);
+                      }}
                     >
                       <option value="">Select Pincode</option>
                       {pincodes.map((pincode) => (
-                        <option key={pincode._id} value={pincode._id}>
+                        <option
+                          key={pincode.pincodeId}
+                          value={pincode.pincodeId}
+                        >
                           {pincode.pincode}
                         </option>
                       ))}
@@ -659,7 +695,7 @@ function AreaList() {
                       <option value={false}>Inactive</option>
                     </select>
 
-                    <label className="mt-3">Minimum Price</label>
+                    {/* <label className="mt-3">Minimum Price</label>
                     <input
                       className="form-control"
                       type="number"
@@ -671,7 +707,7 @@ function AreaList() {
                           minimumPrice: e.target.value,
                         })
                       }
-                    />
+                    /> */}
 
                     <label className="mt-3">Delivery Charge</label>
                     <input
@@ -691,10 +727,10 @@ function AreaList() {
                       className="btn btn-success w-100 mt-4"
                       onClick={
                         addFormData.name &&
-                        addFormData?.state &&
-                        addFormData?.city &&
-                        addFormData?.pincode &&
-                        addFormData?.minimumPrice &&
+                        addFormData?.stateId &&
+                        addFormData?.cityId &&
+                        addFormData?.pincodeId &&
+                        // addFormData?.minimumPrice &&
                         addFormData?.deliveryCharge &&
                         !isLoading
                           ? handleAddAreaFunc
@@ -702,20 +738,20 @@ function AreaList() {
                       }
                       disabled={
                         !addFormData.name ||
-                        !addFormData?.state ||
-                        !addFormData?.city ||
-                        !addFormData?.pincode ||
-                        !addFormData?.minimumPrice ||
+                        !addFormData?.stateId ||
+                        !addFormData?.cityId ||
+                        !addFormData?.pincodeId ||
+                        // !addFormData?.minimumPrice ||
                         !addFormData?.deliveryCharge ||
                         isLoading
                       }
                       style={{
                         opacity:
                           !addFormData.name ||
-                          !addFormData?.state ||
-                          !addFormData?.city ||
-                          !addFormData?.pincode ||
-                          !addFormData?.minimumPrice ||
+                          !addFormData?.stateId ||
+                          !addFormData?.cityId ||
+                          !addFormData?.pincodeId ||
+                          // !addFormData?.minimumPrice ||
                           !addFormData?.deliveryCharge ||
                           isLoading
                             ? "0.5"
@@ -746,7 +782,7 @@ function AreaList() {
                 background: "#f7f7f5",
                 width: "364px",
                 maxHeight: "90vh",
-                overflowY: "auto", 
+                overflowY: "auto",
               }}
             >
               <div className="d-flex justify-content-end pt-4 pb-0 px-4">
@@ -756,9 +792,9 @@ function AreaList() {
                   onClick={() =>
                     setEditFormData({
                       name: "",
-                      state: "",
-                      city: "",
-                      pincode: "",
+                      stateId: "",
+                      cityId: "",
+                      pincodeId: "",
                       minimumPrice: "",
                       deliveryCharge: "",
                       status: "",
@@ -789,30 +825,22 @@ function AreaList() {
                     <label className="mt-3">State</label>
                     <select
                       className="form-control"
+                      value={editFormData.stateId}
                       onChange={async (e) => {
                         const stateId = e.target.value;
                         setEditFormData({
                           ...editFormData,
-                          state: stateId,
-                          city: "", // reset city when state changes
+                          stateId: stateId,
+                          city: "",
+                          pincode: "",
                         });
-                      
-                        if (stateId) {
-                          try {
-                            const res = await getCityByStateServ(stateId);
-                            setCities(res.data.data);
-                          } catch (err) {
-                            toast.error("Failed to load cities for selected state");
-                          }
-                        } else {
-                          setCities([]);
-                        }
-                      }}                      
-                      value={editFormData?.state}
+                        await handleGetCityByState(stateId);
+                        setPincodes([]);
+                      }}
                     >
                       <option value="">Select State</option>
                       {states.map((state) => (
-                        <option key={state._id} value={state._id}>
+                        <option key={state.stateId} value={state.stateId}>
                           {state.name}
                         </option>
                       ))}
@@ -821,36 +849,67 @@ function AreaList() {
                     <label className="mt-3">City</label>
                     <select
                       className="form-control"
-                      onChange={(e) =>
+                      value={editFormData.cityId}
+                      onChange={async (e) => {
+                        const cityId = e.target.value;
+
+                        // Find selected city from state
+                        const selectedCity = cities.find(
+                          (city) => city.cityId === parseInt(cityId)
+                        );
+
                         setEditFormData({
                           ...editFormData,
-                          city: e.target.value,
-                        })
-                      }
-                      value={editFormData?.city}
+                          cityId: cityId,
+                          minimumPrice: selectedCity
+                            ? selectedCity.minimumPrice
+                            : "",
+                          pincode: "",
+                        });
+
+                        setSelectedCityMinimumPrice(
+                          selectedCity ? selectedCity.minimumPrice : ""
+                        );
+
+                        await handleGetPincodeByCity(cityId);
+                      }}
                     >
                       <option value="">Select City</option>
                       {cities.map((city) => (
-                        <option key={city._id} value={city._id}>
+                        <option key={city.cityId} value={city.cityId}>
                           {city.name}
                         </option>
                       ))}
                     </select>
 
+                    {selectedCityMinimumPrice !== "" && (
+                      <div className="mt-2">
+                        <small className="text-muted">
+                          Minimum Price for this city: ₹
+                          {selectedCityMinimumPrice}
+                        </small>
+                      </div>
+                    )}
+
                     <label className="mt-3">Pincode</label>
                     <select
                       className="form-control"
-                      onChange={(e) =>
+                      value={editFormData.pincodeId}
+                      onChange={async (e) => {
+                        const pincodeId = e.target.value;
                         setEditFormData({
                           ...editFormData,
-                          pincode: e.target.value,
-                        })
-                      }
-                      value={editFormData?.pincode}
+                          pincodeId: pincodeId,
+                        });
+                        await handleGetAreasByPincode(pincodeId);
+                      }}
                     >
                       <option value="">Select Pincode</option>
                       {pincodes.map((pincode) => (
-                        <option key={pincode._id} value={pincode._id}>
+                        <option
+                          key={pincode.pincodeId}
+                          value={pincode.pincodeId}
+                        >
                           {pincode.pincode}
                         </option>
                       ))}
@@ -872,7 +931,7 @@ function AreaList() {
                       <option value={false}>Inactive</option>
                     </select>
 
-                    <label className="mt-3">Minimum Price</label>
+                    {/* <label className="mt-3">Minimum Price</label>
                     <input
                       className="form-control"
                       type="number"
@@ -884,7 +943,7 @@ function AreaList() {
                         })
                       }
                       value={editFormData?.minimumPrice}
-                    />
+                    /> */}
 
                     <label className="mt-3">Delivery Charge</label>
                     <input
@@ -901,11 +960,11 @@ function AreaList() {
                     />
 
                     {editFormData?.name &&
-                    editFormData?.state &&
-                    editFormData?.city &&
-                    editFormData?.pincode &&
-                    editFormData?.deliveryCharge &&
-                    editFormData?.minimumPrice ? (
+                    editFormData?.stateId &&
+                    editFormData?.cityId &&
+                    editFormData?.pincodeId &&
+                    // editFormData?.minimumPrice &&
+                    editFormData?.deliveryCharge ? (
                       <button
                         className="btn btn-success w-100 mt-4"
                         onClick={!isLoading && handleUpdateAreaFunc}

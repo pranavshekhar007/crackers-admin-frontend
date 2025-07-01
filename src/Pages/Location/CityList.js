@@ -30,7 +30,7 @@ function CityList() {
   const [statics, setStatics] = useState(null);
   const [addFormData, setAddFormData] = useState({
     name: "",
-    state: "",
+    stateId: "",
     status: "",
     minimumPrice: "",
     _id: "",
@@ -95,7 +95,7 @@ function CityList() {
         toast.success(response?.data?.message || "City added successfully!");
         setAddFormData({
           name: "",
-          state: "",
+          stateId: "",
           minimumPrice: "",
           status: "",
           _id: "",
@@ -130,7 +130,7 @@ function CityList() {
   };
   const [editFormData, setEditFormData] = useState({
     name: "",
-    state: "",
+    stateId: "",
     status: "",
     minimumPrice: "",
     _id: "",
@@ -144,7 +144,7 @@ function CityList() {
         toast.success(response?.data?.message || "City updated successfully!");
         setEditFormData({
           name: "",
-          state: "",
+          stateId: "",
           status: "",
           minimumPrice: "",
           _id: "",
@@ -267,7 +267,7 @@ function CityList() {
                         className="text-center py-3"
                         style={{ borderRadius: "30px 0px 0px 30px" }}
                       >
-                        Sr. No
+                        Id
                       </th>
 
                       <th className="text-center py-3">City Name</th>
@@ -319,9 +319,7 @@ function CityList() {
                             <>
                               <tr>
                                 <td className="text-center">
-                                  {(payload.pageNo - 1) * payload.pageCount +
-                                    i +
-                                    1}
+                                {v?.cityId}
                                 </td>
 
                                 <td className="font-weight-600 text-center">
@@ -357,7 +355,7 @@ function CityList() {
                                       setEditFormData({
                                         name: v?.name,
                                         status: v?.status,
-                                        state: v?.state?._id || v?.state || "",
+                                        stateId: v?.stateId || "",
                                         minimumPrice: v?.minimumPrice || "",
                                         _id: v?._id,
                                       });
@@ -495,7 +493,7 @@ function CityList() {
                   style={{ height: "20px", cursor: "pointer" }}
                   onClick={() =>
                     setAddFormData({
-                      state: "",
+                      stateId: "",
                       name: "",
                       minimumPrice: "",
                       status: "",
@@ -513,17 +511,17 @@ function CityList() {
                     <label className="mt-3">State</label>
                     <select
                       className="form-control"
-                      value={addFormData.state}
+                      value={addFormData.stateId}
                       onChange={(e) =>
                         setAddFormData({
                           ...addFormData,
-                          state: e.target.value,
+                          stateId: e.target.value,
                         })
                       }
                     >
                       <option value="">Select State</option>
                       {states.map((state) => (
-                        <option key={state._id} value={state._id}>
+                        <option key={state.stateId} value={state.stateId}>
                           {state.name}
                         </option>
                       ))}
@@ -573,7 +571,7 @@ function CityList() {
                       className="btn btn-success w-100 mt-4"
                       onClick={
                         addFormData.name &&
-                        addFormData?.state &&
+                        addFormData?.stateId &&
                         addFormData.minimumPrice &&
                         !isLoading
                           ? handleAddCityFunc
@@ -581,14 +579,14 @@ function CityList() {
                       }
                       disabled={
                         !addFormData.name ||
-                        !addFormData?.state ||
+                        !addFormData?.stateId ||
                         !addFormData.minimumPrice ||
                         isLoading
                       }
                       style={{
                         opacity:
                           !addFormData.name ||
-                          !addFormData?.state ||
+                          !addFormData?.stateId ||
                           !addFormData.minimumPrice ||
                           isLoading
                             ? "0.5"
@@ -627,7 +625,7 @@ function CityList() {
                   onClick={() =>
                     setEditFormData({
                       name: "",
-                      state: "",
+                      stateId: "",
                       minimumPrice: "",
                       _id: "",
                     })
@@ -656,17 +654,17 @@ function CityList() {
                     <label className="mt-3">State</label>
                     <select
                       className="form-control"
+                      value={editFormData?.stateId}
                       onChange={(e) =>
                         setEditFormData({
                           ...editFormData,
-                          state: e.target.value,
+                          stateId: e.target.value,
                         })
                       }
-                      value={editFormData?.state}
                     >
                       <option value="">Select State</option>
                       {states.map((state) => (
-                        <option key={state._id} value={state._id}>
+                        <option key={state.stateId} value={state.stateId}>
                           {state.name}
                         </option>
                       ))}
@@ -702,7 +700,7 @@ function CityList() {
                       }
                       value={editFormData?.minimumPrice}
                     />
-                    {editFormData?.name && editFormData?.state && editFormData?.minimumPrice ? (
+                    {editFormData?.name && editFormData?.stateId && editFormData?.minimumPrice ? (
                       <button
                         className="btn btn-success w-100 mt-4"
                         onClick={!isLoading && handleUpdateCityFunc}

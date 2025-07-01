@@ -241,7 +241,7 @@ function StateList() {
                         className="text-center py-3"
                         style={{ borderRadius: "30px 0px 0px 30px" }}
                       >
-                        Sr. No
+                        Id
                       </th>
                       <th className="text-center py-3">State Name</th>
                       <th className="text-center py-3">Status</th>
@@ -291,9 +291,7 @@ function StateList() {
                             <>
                               <tr>
                                 <td className="text-center">
-                                  {(payload.pageNo - 1) * payload.pageCount +
-                                    i +
-                                    1}
+                                  {v?.stateId}
                                 </td>
 
                                 <td className="font-weight-600 text-center">

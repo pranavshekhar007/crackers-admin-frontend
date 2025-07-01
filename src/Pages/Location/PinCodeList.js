@@ -10,12 +10,14 @@ import NoRecordFound from "../../Components/NoRecordFound";
 import {
   addPincodeServ,
   deletePincodeServ,
+  getCityServ,
   getPincodeServ,
   updatePincodeServ,
 } from "../../services/location.services";
 
 function PincodeList() {
   const [list, setList] = useState([]);
+  const [cities, setCities] = useState([]);
   const [statics, setStatics] = useState(null);
   const [payload, setPayload] = useState({
     searchKey: "",
@@ -27,14 +29,25 @@ function PincodeList() {
   const [isLoading, setIsLoading] = useState(false);
   const [addFormData, setAddFormData] = useState({
     pincode: "",
+    cityId: "",
     status: "",
     show: false,
   });
   const [editFormData, setEditFormData] = useState({
     pincode: "",
+    cityId: "",
     status: "",
     _id: "",
   });
+
+  const handleGetCitiesFunc = async () => {
+    try {
+      const response = await getCityServ({ pageCount: 1000 });
+      setCities(response?.data?.data || []);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleGetPincodeFunc = async () => {
     if (list.length === 0) setShowSkelton(true);
@@ -68,6 +81,7 @@ function PincodeList() {
 
   useEffect(() => {
     handleGetPincodeFunc();
+    handleGetCitiesFunc();
   }, [payload]);
 
   const handleAddPincodeFunc = async () => {
@@ -76,7 +90,7 @@ function PincodeList() {
       const response = await addPincodeServ(addFormData);
       if (response?.data?.statusCode === 200) {
         toast.success(response?.data?.message);
-        setAddFormData({ pincode: "", status: "", show: false });
+        setAddFormData({ pincode: "", cityId: "", status: "", show: false });
         handleGetPincodeFunc();
       }
     } catch (error) {
@@ -91,7 +105,7 @@ function PincodeList() {
       const response = await updatePincodeServ(editFormData);
       if (response?.data?.statusCode === 200) {
         toast.success(response?.data?.message);
-        setEditFormData({ pincode: "", status: "", _id: "" });
+        setEditFormData({ pincode: "", cityId: "", status: "", _id: "" });
         handleGetPincodeFunc();
       }
     } catch (error) {
@@ -271,7 +285,6 @@ function PincodeList() {
                           return (
                             <>
                               <tr>
-                              
                                 <td className="font-weight-600 text-center">
                                   {v?.pincodeId}
                                 </td>
@@ -304,6 +317,7 @@ function PincodeList() {
                                     onClick={() => {
                                       setEditFormData({
                                         pincode: v?.pincode,
+                                        cityId: v?.cityId,
                                         status: v?.status,
                                         _id: v?._id,
                                       });
@@ -445,6 +459,7 @@ function PincodeList() {
                   onClick={() =>
                     setAddFormData({
                       pincode: "",
+                      cityId: "",
                       status: "",
                       show: false,
                     })
@@ -461,7 +476,25 @@ function PincodeList() {
                   className="d-flex justify-content-center w-100"
                 >
                   <div className="w-100 px-2">
-                    <h5 className="mb-4">Add Pincode</h5>
+                  <h5 className="mb-4">Add Pincode</h5>
+                    <label className="mt-3">City</label>
+                    <select
+                      className="form-control"
+                      value={addFormData.cityId}
+                      onChange={(e) =>
+                        setAddFormData({
+                          ...addFormData,
+                          cityId: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="">Select City</option>
+                      {cities.map((c) => (
+                        <option key={c._id} value={c.cityId}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
 
                     <label className="mt-3">Pin Code</label>
                     <input
@@ -469,7 +502,10 @@ function PincodeList() {
                       type="text"
                       value={addFormData.pincode}
                       onChange={(e) =>
-                        setAddFormData({ ...addFormData, pincode: e.target.value })
+                        setAddFormData({
+                          ...addFormData,
+                          pincode: e.target.value,
+                        })
                       }
                     />
 
@@ -493,6 +529,7 @@ function PincodeList() {
                       className="btn btn-success w-100 mt-4"
                       onClick={
                         addFormData?.pincode &&
+                        addFormData.cityId &&
                         addFormData?.status &&
                         !isLoading
                           ? handleAddPincodeFunc
@@ -500,12 +537,14 @@ function PincodeList() {
                       }
                       disabled={
                         !addFormData?.pincode ||
+                        !addFormData.cityId ||
                         !addFormData?.status ||
                         isLoading
                       }
                       style={{
                         opacity:
                           !addFormData?.pincode ||
+                          !addFormData.cityId ||
                           !addFormData?.status ||
                           isLoading
                             ? "0.5"
@@ -544,6 +583,7 @@ function PincodeList() {
                   onClick={() =>
                     setEditFormData({
                       pincode: "",
+                      cityId: "",
                       status: "",
                       _id: "",
                     })
@@ -562,6 +602,25 @@ function PincodeList() {
                   <div className="w-100 px-2">
                     <h5 className="mb-4">Update Pincode</h5>
 
+                    <label className="mt-3">City</label>
+                    <select
+                      className="form-control"
+                      value={editFormData.cityId}
+                      onChange={(e) =>
+                        setEditFormData({
+                          ...editFormData,
+                          cityId: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="">Select City</option>
+                      {cities.map((c) => (
+                        <option key={c._id} value={c.cityId}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+
                     <label className="mt-3">Pin Code</label>
                     <input
                       className="form-control"
@@ -574,8 +633,6 @@ function PincodeList() {
                       }
                       value={editFormData?.pincode}
                     />
-
-                    
 
                     <label className="mt-3">Status</label>
                     <select
@@ -593,8 +650,7 @@ function PincodeList() {
                       <option value={false}>Inactive</option>
                     </select>
 
-                    {editFormData?.pincode &&
-                    editFormData?.status ? (
+                    {editFormData?.pincode && editFormData?.cityId &&  editFormData?.status ? (
                       <button
                         className="btn btn-success w-100 mt-4"
                         onClick={!isLoading && handleUpdatePincodeFunc}

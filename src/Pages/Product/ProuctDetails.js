@@ -12,7 +12,7 @@ import { getProductDetailsServ } from "../../services/product.services";
 function ProductDetails() {
   const navigate = useNavigate();
   const params = useParams();
-  const [details, setDetails] = useState(null);
+  const [details, setDetails] = useState({});
   const [ratingList, setRatingList] = useState([]);
 
   const getProductDetails = async () => {
@@ -30,7 +30,9 @@ function ProductDetails() {
   const [selectedTab, setSelectedTab] = useState("Product Details");
   const groupedVariants = [];
 
-  details?.productVariants.forEach((variant) => {
+
+if (details?.productVariants) {
+  details.productVariants.forEach((variant) => {
     const existingGroup = groupedVariants.find(
       (group) => group.variantKey === variant.variantKey
     );
@@ -46,6 +48,8 @@ function ProductDetails() {
       });
     }
   });
+}
+
 
    const handleDeleteProductFunc = async (id) => {
       const confirmed = window.confirm(

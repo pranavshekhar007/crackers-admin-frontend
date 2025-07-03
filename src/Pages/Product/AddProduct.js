@@ -28,7 +28,7 @@ function AddProduct() {
   const [content, setContent] = useState("");
   const [formData, setFormData] = useState({
     name: "",
-    tags: [],
+    tags: "",
     productType: "",
     tax: "",
     categoryId: "",

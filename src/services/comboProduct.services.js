@@ -70,7 +70,7 @@ export const deleteComboProductServ = async (id) => {
 
 export const getComboProductDetailsServ = async (id) => {
   try {
-    const response = await axios.get(BASE_URL + "combo-product/details/" + id);
+    const response = await axios.get(BASE_URL+"combo-product/details/"+id);
     return response;
   } catch (error) {
     // Handle error (e.g., log or throw an error)

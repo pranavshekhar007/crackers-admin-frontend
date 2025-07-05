@@ -49,6 +49,7 @@ import ProductDetails from '../Pages/Product/ProuctDetails';
 import PincodeList from '../Pages/Location/PinCodeList';
 import AreaList from '../Pages/Location/AreaList';
 import BulkUpload from '../Pages/Location/BulkUpload';
+import Pricing from '../Pages/Subscription/Pricing';
 
 
 function AuthenticatedRoutes() {
@@ -146,6 +147,8 @@ function AuthenticatedRoutes() {
         <Route path='/area' element={<AreaList />} />
         <Route path='/bulk-upload' element={<BulkUpload />} />
 
+        {/* Subscription Chit  */}
+        <Route path='/pricing' element={<Pricing />} />
     </Routes>
   )
 }

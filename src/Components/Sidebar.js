@@ -121,6 +121,16 @@ function Sidebar({ selectedMenu, selectedItem }) {
       ],
     },
     {
+      menuIcon: "https://cdn-icons-png.flaticon.com/128/2435/2435245.png",
+      menu: "Subscription",
+      subMenu: [
+        {
+          name: "Pricing",
+          path: "/pricing",
+        },
+      ],
+    },
+    {
       menuIcon: "https://cdn-icons-png.flaticon.com/128/2840/2840215.png",
       menu: "System Support",
       subMenu: [

@@ -38,9 +38,13 @@ function Pricing() {
     setShowSkelton(false);
   };
 
+  useEffect(() => {
+    handleGetSubscriptionChitFunc();
+  }, [payload]);
+
   const staticsArr = [
     {
-      title: "Total Subcsription",
+      title: "Total Subscription",
       count: statics?.totalCount,
       bgColor: "#6777EF",
     },
@@ -56,60 +60,43 @@ function Pricing() {
     },
   ];
 
-  useEffect(() => {
-    handleGetSubscriptionChitFunc();
-  }, [payload]);
-
   const [isLoading, setIsLoading] = useState(false);
   const [addFormData, setAddFormData] = useState({
     name: "",
     duration: "",
     price: "",
     discountRate: "",
-    actualPrice: "",
     image: "",
     imgPrev: "",
-    startDate: "",
-    endDate: "",
     status: "",
-    userId: "",
     show: false,
   });
 
   const handleAddSubscriptionChitFunc = async () => {
     setIsLoading(true);
     const formData = new FormData();
-
     formData.append("name", addFormData?.name);
     formData.append("duration", addFormData?.duration);
     formData.append("price", addFormData?.price);
     formData.append("discountRate", addFormData?.discountRate);
-    formData.append("actualPrice", addFormData?.actualPrice);
-    formData.append("startDate", addFormData?.startDate);
-    formData.append("endDate", addFormData?.endDate);
     formData.append("status", addFormData?.status);
-    formData.append("userId", addFormData?.userId);
 
     if (addFormData?.image) {
       formData.append("image", addFormData?.image);
     }
-
+ 
     try {
       let response = await addSubscriptionChitServ(formData);
-      if (response?.data?.statusCode === "200") {
+      if (response?.data?.statusCode === 200) {
         toast.success(response?.data?.message);
         setAddFormData({
           name: "",
           duration: "",
           price: "",
           discountRate: "",
-          actualPrice: "",
           image: "",
           imgPrev: "",
-          startDate: "",
-          endDate: "",
           status: "",
-          userId: "",
           show: false,
         });
         handleGetSubscriptionChitFunc();
@@ -121,9 +108,7 @@ function Pricing() {
   };
 
   const handleDeleteSubscriptionChitFunc = async (id) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this subscription chit?"
-    );
+    const confirmed = window.confirm("Are you sure you want to delete this subscription chit?");
     if (confirmed) {
       try {
         let response = await deleteSubscriptionChitServ(id);
@@ -143,29 +128,21 @@ function Pricing() {
     duration: "",
     price: "",
     discountRate: "",
-    actualPrice: "",
     image: "",
     imgPrev: "",
-    startDate: "",
-    endDate: "",
     status: "",
-    userId: "",
   });
 
   const handleUpdateSubscriptionChitFunc = async () => {
     setIsLoading(true);
     const formData = new FormData();
-
     formData.append("_id", editFormData?._id);
     formData.append("name", editFormData?.name);
     formData.append("duration", editFormData?.duration);
     formData.append("price", editFormData?.price);
     formData.append("discountRate", editFormData?.discountRate);
-    formData.append("actualPrice", editFormData?.actualPrice);
-    formData.append("startDate", editFormData?.startDate);
-    formData.append("endDate", editFormData?.endDate);
-    formData?.append("status", editFormData?.status);
-    formData.append("userId", editFormData?.userId);
+    formData.append("status", editFormData?.status);
+    // formData.append("userId", editFormData?.userId);
 
     if (editFormData?.image) {
       formData.append("image", editFormData?.image);
@@ -181,13 +158,10 @@ function Pricing() {
           duration: "",
           price: "",
           discountRate: "",
-          actualPrice: "",
           image: "",
           imgPrev: "",
-          startDate: "",
-          endDate: "",
           status: "",
-          userId: "",
+          // userId: "",
         });
         handleGetSubscriptionChitFunc();
       }
@@ -295,7 +269,6 @@ function Pricing() {
                       <th className="text-center py-3">Duration (months)</th>
                       <th className="text-center py-3">Price</th>
                       <th className="text-center py-3">Discount Rate (%)</th>
-                      <th className="text-center py-3">Actual Price</th>
                       <th className="text-center py-3">Start Date</th>
                       <th className="text-center py-3">End Date</th>
                       <th className="text-center py-3">Action</th>
@@ -349,7 +322,6 @@ function Pricing() {
                             <td className="text-center">{v?.duration}</td>
                             <td className="text-center">{v?.price}</td>
                             <td className="text-center">{v?.discountRate}</td>
-                            <td className="text-center">{v?.actualPrice}</td>
                             <td className="text-center">
                               {moment(v?.startDate).format("DD-MM-YY")}
                             </td>
@@ -366,7 +338,6 @@ function Pricing() {
                                     duration: v?.duration,
                                     price: v?.price,
                                     discountRate: v?.discountRate,
-                                    actualPrice: v?.actualPrice,
                                     startDate: v?.startDate
                                       ? moment(v?.startDate).format(
                                           "YYYY-MM-DD"
@@ -375,7 +346,7 @@ function Pricing() {
                                     endDate: v?.endDate
                                       ? moment(v?.endDate).format("YYYY-MM-DD")
                                       : "",
-                                    userId: v?.userId,
+                                    // userId: v?.userId,
                                     image: "",
                                     imgPrev: v?.image,
                                   })
@@ -476,8 +447,6 @@ function Pricing() {
                       duration: "",
                       price: "",
                       discountRate: "",
-                      startDate: "",
-                      endDate: "",
                       image: "",
                       imgPrev: "",
                       status: "",
@@ -517,18 +486,13 @@ function Pricing() {
                     />
 
                     <label className="mt-3">Name</label>
-                    <select
+                    <input
                       className="form-control"
                       onChange={(e) =>
                         setAddFormData({ ...addFormData, name: e.target.value })
                       }
                       value={addFormData?.name}
-                    >
-                      <option value="">Select Name</option>
-                      <option value="Gold">Gold</option>
-                      <option value="Platinum">Platinum</option>
-                      <option value="Premium">Premium</option>
-                    </select>
+                    />
 
                     <label className="mt-3">Duration (months)</label>
                     <input
@@ -567,45 +531,6 @@ function Pricing() {
                         })
                       }
                       value={addFormData?.discountRate}
-                    />
-
-                    {/* <label className="mt-3">Actual Price</label>
-                    <input
-                      className="form-control"
-                      type="number"
-                      onChange={(e) =>
-                        setAddFormData({
-                          ...addFormData,
-                          actualPrice: e.target.value,
-                        })
-                      }
-                      value={addFormData?.actualPrice}
-                    /> */}
-
-                    <label className="mt-3">Start Date</label>
-                    <input
-                      className="form-control"
-                      type="date"
-                      onChange={(e) =>
-                        setAddFormData({
-                          ...addFormData,
-                          startDate: e.target.value,
-                        })
-                      }
-                      value={addFormData?.startDate}
-                    />
-
-                    <label className="mt-3">End Date</label>
-                    <input
-                      className="form-control"
-                      type="date"
-                      onChange={(e) =>
-                        setAddFormData({
-                          ...addFormData,
-                          endDate: e.target.value,
-                        })
-                      }
-                      value={addFormData?.endDate}
                     />
 
                     <label className="mt-3">Status</label>
@@ -683,9 +608,6 @@ function Pricing() {
                       duration: "",
                       price: "",
                       discountRate: "",
-                      actualPrice: "",
-                      startDate: "",
-                      endDate: "",
                       image: "",
                       imgPrev: "",
                       status: "",
@@ -777,45 +699,6 @@ function Pricing() {
                         })
                       }
                       value={editFormData?.discountRate}
-                    />
-
-                    <label className="mt-3">Actual Price</label>
-                    <input
-                      className="form-control"
-                      type="number"
-                      onChange={(e) =>
-                        setEditFormData({
-                          ...editFormData,
-                          actualPrice: e.target.value,
-                        })
-                      }
-                      value={editFormData?.actualPrice}
-                    />
-
-                    <label className="mt-3">Start Date</label>
-                    <input
-                      className="form-control"
-                      type="date"
-                      onChange={(e) =>
-                        setEditFormData({
-                          ...editFormData,
-                          startDate: e.target.value,
-                        })
-                      }
-                      value={editFormData?.startDate?.slice(0, 10)}
-                    />
-
-                    <label className="mt-3">End Date</label>
-                    <input
-                      className="form-control"
-                      type="date"
-                      onChange={(e) =>
-                        setEditFormData({
-                          ...editFormData,
-                          endDate: e.target.value,
-                        })
-                      }
-                      value={editFormData?.endDate?.slice(0, 10)}
                     />
 
                     <label className="mt-3">Status</label>

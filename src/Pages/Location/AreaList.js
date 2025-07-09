@@ -695,7 +695,7 @@ function AreaList() {
                       <option value={false}>Inactive</option>
                     </select>
 
-                    <label className="mt-3">Minimum Price</label>
+                    {/* <label className="mt-3">Minimum Price</label>
                     <input
                       className="form-control"
                       type="number"
@@ -707,7 +707,7 @@ function AreaList() {
                           minimumPrice: e.target.value,
                         })
                       }
-                    />
+                    /> */}
 
                     <label className="mt-3">Delivery Charge</label>
                     <input

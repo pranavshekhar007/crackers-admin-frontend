@@ -50,6 +50,7 @@ import PincodeList from '../Pages/Location/PinCodeList';
 import AreaList from '../Pages/Location/AreaList';
 import BulkUpload from '../Pages/Location/BulkUpload';
 import Pricing from '../Pages/Subscription/Pricing';
+import Scheme from '../Pages/Subscription/Scheme';
 
 
 function AuthenticatedRoutes() {
@@ -149,6 +150,7 @@ function AuthenticatedRoutes() {
 
         {/* Subscription Chit  */}
         <Route path='/pricing' element={<Pricing />} />
+        <Route path='/scheme' element={<Scheme />} />
     </Routes>
   )
 }

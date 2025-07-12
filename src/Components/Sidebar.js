@@ -125,6 +125,10 @@ function Sidebar({ selectedMenu, selectedItem }) {
       menu: "Subscription",
       subMenu: [
         {
+          name: "Scheme",
+          path: "/scheme",
+        },
+        {
           name: "Pricing",
           path: "/pricing",
         },

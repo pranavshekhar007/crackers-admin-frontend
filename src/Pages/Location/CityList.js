@@ -33,6 +33,7 @@ function CityList() {
     stateId: "",
     status: "",
     minimumPrice: "",
+    deliveryCharge: "",
     _id: "",
   });
 
@@ -97,6 +98,7 @@ function CityList() {
           name: "",
           stateId: "",
           minimumPrice: "",
+          deliveryCharge: "",
           status: "",
           _id: "",
         });
@@ -133,6 +135,7 @@ function CityList() {
     stateId: "",
     status: "",
     minimumPrice: "",
+    deliveryCharge: "",
     _id: "",
   });
   const handleUpdateCityFunc = async () => {
@@ -147,6 +150,7 @@ function CityList() {
           stateId: "",
           status: "",
           minimumPrice: "",
+          deliveryCharge: "",
           _id: "",
         });
         handleGetCities();
@@ -272,6 +276,7 @@ function CityList() {
 
                       <th className="text-center py-3">City Name</th>
                       <th className="text-center py-3">Minimum price</th>
+                      <th className="text-center py-3">Delivery Charge</th>
                       <th className="text-center py-3">Status</th>
                       <th className="text-center py-3">Created At</th>
                       <th
@@ -309,6 +314,9 @@ function CityList() {
                                 <td className="text-center">
                                   <Skeleton width={100} height={25} />
                                 </td>
+                                <td className="text-center">
+                                  <Skeleton width={100} height={25} />
+                                </td>
                               </tr>
                               <div className="py-2"></div>
                             </>
@@ -318,15 +326,16 @@ function CityList() {
                           return (
                             <>
                               <tr>
-                                <td className="text-center">
-                                {v?.cityId}
-                                </td>
+                                <td className="text-center">{v?.cityId}</td>
 
                                 <td className="font-weight-600 text-center">
                                   {v?.name}
                                 </td>
                                 <td className="font-weight-600 text-center">
                                   {v?.minimumPrice}
+                                </td>
+                                <td className="font-weight-600 text-center">
+                                  {v?.deliveryCharge}
                                 </td>
                                 <td className="text-center">
                                   {v?.status ? (
@@ -357,6 +366,7 @@ function CityList() {
                                         status: v?.status,
                                         stateId: v?.stateId || "",
                                         minimumPrice: v?.minimumPrice || "",
+                                        deliveryCharge: v?.deliveryCharge || "",
                                         _id: v?._id,
                                       });
                                     }}
@@ -496,6 +506,7 @@ function CityList() {
                       stateId: "",
                       name: "",
                       minimumPrice: "",
+                      deliveryCharge: "",
                       status: "",
                       show: false,
                     })
@@ -537,6 +548,20 @@ function CityList() {
                       }
                     />
 
+                    <label className="mt-3">Delivery Charge</label>
+                    <input
+                      className="form-control"
+                      type="number"
+                      min="0"
+                      value={addFormData.deliveryCharge}
+                      onChange={(e) =>
+                        setAddFormData({
+                          ...addFormData,
+                          deliveryCharge: e.target.value,
+                        })
+                      }
+                    />
+
                     <label className="mt-3">Status</label>
                     <select
                       className="form-control"
@@ -573,6 +598,7 @@ function CityList() {
                         addFormData.name &&
                         addFormData?.stateId &&
                         addFormData.minimumPrice &&
+                        addFormData?.deliveryCharge &&
                         !isLoading
                           ? handleAddCityFunc
                           : undefined
@@ -581,6 +607,7 @@ function CityList() {
                         !addFormData.name ||
                         !addFormData?.stateId ||
                         !addFormData.minimumPrice ||
+                        !addFormData?.deliveryCharge ||
                         isLoading
                       }
                       style={{
@@ -588,6 +615,7 @@ function CityList() {
                           !addFormData.name ||
                           !addFormData?.stateId ||
                           !addFormData.minimumPrice ||
+                          !addFormData?.deliveryCharge ||
                           isLoading
                             ? "0.5"
                             : "1",
@@ -627,6 +655,7 @@ function CityList() {
                       name: "",
                       stateId: "",
                       minimumPrice: "",
+                      deliveryCharge: "",
                       _id: "",
                     })
                   }
@@ -670,7 +699,6 @@ function CityList() {
                       ))}
                     </select>
 
-
                     <label className="mt-3">Status</label>
                     <select
                       className="form-control"
@@ -700,7 +728,25 @@ function CityList() {
                       }
                       value={editFormData?.minimumPrice}
                     />
-                    {editFormData?.name && editFormData?.stateId && editFormData?.minimumPrice ? (
+
+                    <label className="mt-3">Delivery Charge</label>
+                    <input
+                      className="form-control"
+                      type="number"
+                      min="0"
+                      onChange={(e) =>
+                        setEditFormData({
+                          ...editFormData,
+                          deliveryCharge: e.target.value,
+                        })
+                      }
+                      value={editFormData?.deliveryCharge}
+                    />
+
+                    {editFormData?.name &&
+                    editFormData?.stateId &&
+                    editFormData?.minimumPrice &&
+                    editFormData?.deliveryCharge ? (
                       <button
                         className="btn btn-success w-100 mt-4"
                         onClick={!isLoading && handleUpdateCityFunc}

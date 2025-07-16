@@ -129,8 +129,8 @@ function Sidebar({ selectedMenu, selectedItem }) {
           path: "/scheme",
         },
         {
-          name: "Pricing",
-          path: "/pricing",
+          name: "Chit Subscription",
+          path: "/subscription",
         },
       ],
     },

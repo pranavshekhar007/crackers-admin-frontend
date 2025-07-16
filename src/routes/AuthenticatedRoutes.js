@@ -49,8 +49,9 @@ import ProductDetails from '../Pages/Product/ProuctDetails';
 import PincodeList from '../Pages/Location/PinCodeList';
 import AreaList from '../Pages/Location/AreaList';
 import BulkUpload from '../Pages/Location/BulkUpload';
-import Pricing from '../Pages/Subscription/Pricing';
 import Scheme from '../Pages/Subscription/Scheme';
+import ChitSubscription from '../Pages/Subscription/ChitSubscription';
+import SubscriptionChitDetails from '../Pages/Subscription/SubscriptionDetails';
 
 
 function AuthenticatedRoutes() {
@@ -149,8 +150,10 @@ function AuthenticatedRoutes() {
         <Route path='/bulk-upload' element={<BulkUpload />} />
 
         {/* Subscription Chit  */}
-        <Route path='/pricing' element={<Pricing />} />
+        <Route path='/subscription' element={<ChitSubscription />} />
+        <Route path='/subscription-details/:id' element={<SubscriptionChitDetails />} />
         <Route path='/scheme' element={<Scheme />} />
+
     </Routes>
   )
 }

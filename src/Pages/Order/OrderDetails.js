@@ -284,10 +284,9 @@ const OrderDetails = () => {
                 </table>
 
                 <div className="d-flex flex-column align-items-end mt-3">
-                  <div>Subtotal: ₹{order?.totalAmount}</div>
-                  <div>Shipping: ₹0</div>
-                  <div>Tax: ₹0</div>
-                  <div className="fw-bold">Total: ₹{order?.totalAmount}</div>
+                <div>Total: ₹{order?.totalAmount}</div>
+                  <div>deleviryCharge: ₹{order?.deliveryCharge}</div>
+                  <div className="fw-bold">Subtotal: ₹{Number(order?.totalAmount) + Number(order?.deliveryCharge)}</div>
                 </div>
               </div>
 

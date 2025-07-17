@@ -52,6 +52,7 @@ import BulkUpload from '../Pages/Location/BulkUpload';
 import Scheme from '../Pages/Subscription/Scheme';
 import ChitSubscription from '../Pages/Subscription/ChitSubscription';
 import SubscriptionChitDetails from '../Pages/Subscription/SubscriptionDetails';
+import SubscriptionChitUsersList from '../Pages/Subscription/SubscriptionChitUsersList';
 
 
 function AuthenticatedRoutes() {
@@ -150,9 +151,10 @@ function AuthenticatedRoutes() {
         <Route path='/bulk-upload' element={<BulkUpload />} />
 
         {/* Subscription Chit  */}
-        <Route path='/subscription' element={<ChitSubscription />} />
+        {/* <Route path='/subscription' element={<ChitSubscription />} /> */}
         <Route path='/subscription-details/:id' element={<SubscriptionChitDetails />} />
         <Route path='/scheme' element={<Scheme />} />
+        <Route path='/subscription-user' element={<SubscriptionChitUsersList />} />
 
     </Routes>
   )

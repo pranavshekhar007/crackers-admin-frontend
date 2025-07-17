@@ -67,3 +67,44 @@ export const deleteSubscriptionChitServ = async (id) => {
     throw error;
   }
 };
+
+
+// Update Subscription Chit Payment Status
+export const updateSubscriptionChitPaymentStatusServ = async (formData) => {
+  try {
+    const response = await axios.put(
+      BASE_URL + "subscription/update/payment-status",
+      formData
+    );
+    return response;
+  } catch (error) {
+    console.error("Error updating subscription chit payment status:", error);
+    throw error;
+  }
+};
+
+
+// List Subscription Chit Users with status filter
+export const getSubscriptionChitUsersListServ = async (formData) => {
+  try {
+    const response = await axios.post(
+      BASE_URL + "subscription/subscription-users/list",
+      formData
+    );
+    return response;
+  } catch (error) {
+    console.error("Error fetching subscription chit users list:", error);
+    throw error;
+  }
+};
+
+// Approve Subscription Chit User
+export const approveSubscriptionChitUserServ = async (id) => {
+  try {
+    const response = await axios.put(BASE_URL + "subscription/approve/" + id);
+    return response;
+  } catch (error) {
+    console.error("Error approving subscription chit user:", error);
+    throw error;
+  }
+};

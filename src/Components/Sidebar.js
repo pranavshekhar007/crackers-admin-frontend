@@ -128,9 +128,13 @@ function Sidebar({ selectedMenu, selectedItem }) {
           name: "Scheme",
           path: "/scheme",
         },
+        // {
+        //   name: "Chit Subscription",
+        //   path: "/subscription",
+        // },
         {
-          name: "Chit Subscription",
-          path: "/subscription",
+          name: "Chit User",
+          path: "/subscription-user",
         },
       ],
     },

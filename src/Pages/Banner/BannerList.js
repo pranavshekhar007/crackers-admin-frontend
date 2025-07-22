@@ -148,6 +148,32 @@ function BannerList() {
     }
     setIsLoading(false);
   };
+
+  // Utility function for recommended sizes
+  const getRecommendedSizeNote = (type) => {
+    switch (type) {
+      case "Desktop":
+        return `
+  Desktop Banner Size - 1646 x 609 px
+  `;
+      case "Mobile":
+        return `
+  Mobile Banner Size - 646 x 609 px
+  `;
+      case "Brands":
+        return `
+  Brand Logo Carousel Size:
+  200 x 200 px (square) or 200 x 100 px (horizontal)
+  `;
+      case "ChitSubscriptionBanner":
+        return `
+  Chit Subscription Banner Size - 1646 x 609 px
+  `;
+      default:
+        return "";
+    }
+  };
+  
   return (
     <div className="bodyContainer">
       <Sidebar selectedMenu="Banners" selectedItem="Banners" />
@@ -325,7 +351,7 @@ function BannerList() {
                                   <a
                                     onClick={() => {
                                       setEditFormData({
-                                        name: v?.type,
+                                        type: v?.type,
                                         image: "",
                                         imgPrev: v?.image,
                                         status: v?.status,
@@ -419,6 +445,16 @@ function BannerList() {
                         })
                       }
                     />
+                    {/* Recommended Size Notes */}
+                    {addFormData.type && (
+                      <pre
+                        className="text-muted d-block mb-2"
+                        style={{ whiteSpace: "pre-wrap" }}
+                      >
+                        {getRecommendedSizeNote(addFormData.type)}
+                      </pre>
+                    )}
+
                     <label className="mt-3">Type</label>
                     <select
                       className="form-control"
@@ -427,10 +463,11 @@ function BannerList() {
                       }
                     >
                       <option value="">Select Type</option>
-                      <option value="Home">Home</option>
+                      <option value="Desktop">Desktop Banner</option>
+                      <option value="Mobile">Mobile Banner</option>
                       <option value="Brands">Brands Logo</option>
                       <option value="ChitSubscriptionBanner">
-                        Subscription Banner
+                        Chit Subscription Banner
                       </option>
                     </select>
 
@@ -531,6 +568,15 @@ function BannerList() {
                         })
                       }
                     />
+                    {/* Recommended Size Notes */}
+                    {editFormData.type && (
+                      <pre
+                        className="text-muted d-block mb-2"
+                        style={{ whiteSpace: "pre-wrap" }}
+                      >
+                        {getRecommendedSizeNote(editFormData.type)}
+                      </pre>
+                    )}
 
                     <label className="mt-3">Type</label>
                     <select
@@ -544,10 +590,11 @@ function BannerList() {
                       value={editFormData?.type}
                     >
                       <option value="">Select Type</option>
-                      <option value="Home">Home</option>
+                      <option value="Desktop">Desktop Banner</option>
+                      <option value="Mobile">Mobile Banner</option>
                       <option value="Brands">Brands Logo</option>
                       <option value="ChitSubscriptionBanner">
-                        Subscription Banner
+                        Chit Subscription Banner
                       </option>
                     </select>
 

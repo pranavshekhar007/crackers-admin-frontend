@@ -102,92 +102,25 @@ function UserList() {
     }
   };
 
-  // const handleViewCart = async (userId) => {
-  //   try {
-  //     const res = await getUserCartServ(userId);
-  //     const data = res.data;
+  const handleViewCart = async (userId) => {
+    try {
+      const res = await getUserCartServ(userId);
+      const data = res.data;
 
-  //     if (data?.statusCode === 200) {
-  //       setSelectedCart(data.cartItems);
-  //       setActualTotal(data.actualTotalAmount);
-  //       setDiscountedTotal(data.discountedTotalAmount);
-  //       setShowCartModal(true);
-  //     } else {
-  //       toast.error(data?.message || "Failed to fetch cart");
-  //     }
-  //   } catch (err) {
-  //     toast.error("Something went wrong while fetching cart items");
-  //   }
-  // };
-
-  const handleViewCart = (userId) => {
-    const dummyCartItems = [
-      {
-        name: "Chakri Combo Pack",
-        quantity: 3,
-        price: 100,
-        discountedPrice: 80,
-        totalItemPrice: 300,
-        totalItemDiscountedPrice: 240,
-        productHeroImage:
-          "https://i0.wp.com/bigbangcrackers.com/wp-content/uploads/2024/08/Crackling-Opera-Photoroom.jpg?w=500&ssl=1",
-      },
-      {
-        name: "Rocket Box",
-        quantity: 2,
-        price: 150,
-        discountedPrice: 120,
-        totalItemPrice: 300,
-        totalItemDiscountedPrice: 240,
-        productHeroImage:
-          "https://i0.wp.com/bigbangcrackers.com/wp-content/uploads/2024/08/60-Shots-Photoroom.jpg?w=500&ssl=1",
-      },
-      {
-        name: "Rocket Box",
-        quantity: 2,
-        price: 150,
-        discountedPrice: 120,
-        totalItemPrice: 300,
-        totalItemDiscountedPrice: 240,
-        productHeroImage:
-          "https://i0.wp.com/bigbangcrackers.com/wp-content/uploads/2024/08/60-Shots-Photoroom.jpg?w=500&ssl=1",
-      },
-      {
-        name: "Rocket Box",
-        quantity: 2,
-        price: 150,
-        discountedPrice: 120,
-        totalItemPrice: 300,
-        totalItemDiscountedPrice: 240,
-        productHeroImage:
-          "https://i0.wp.com/bigbangcrackers.com/wp-content/uploads/2024/08/60-Shots-Photoroom.jpg?w=500&ssl=1",
-      },
-      {
-        name: "Rocket Box",
-        quantity: 2,
-        price: 150,
-        discountedPrice: 120,
-        totalItemPrice: 300,
-        totalItemDiscountedPrice: 240,
-        productHeroImage:
-          "https://i0.wp.com/bigbangcrackers.com/wp-content/uploads/2024/08/60-Shots-Photoroom.jpg?w=500&ssl=1",
-      },
-    ];
-
-    const totalActual = dummyCartItems.reduce(
-      (sum, item) => sum + item.totalItemPrice,
-      0
-    );
-    const totalDiscounted = dummyCartItems.reduce(
-      (sum, item) => sum + item.totalItemDiscountedPrice,
-      0
-    );
-
-    setSelectedCart(dummyCartItems);
-    setActualTotal(totalActual);
-    setDiscountedTotal(totalDiscounted);
-    setShowCartModal(true);
+      if (data?.statusCode === 200) {
+        setSelectedCart(data.cartItems);
+        setActualTotal(data.actualTotalAmount);
+        setDiscountedTotal(data.discountedTotalAmount);
+        setShowCartModal(true);
+      } else {
+        toast.error(data?.message || "Failed to fetch cart");
+      }
+    } catch (err) {
+      toast.error("Something went wrong while fetching cart items");
+    }
   };
+
+
 
   return (
     <div className="bodyContainer">

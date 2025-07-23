@@ -26,6 +26,7 @@ function ProductList() {
     name: "",
     file: null,
   });
+  const [isUploading, setIsUploading] = useState(false);
   const [payload, setPayload] = useState({
     searchKey: "",
     status: "",
@@ -135,6 +136,8 @@ function ProductList() {
       return;
     }
 
+    setIsUploading(true);
+
     const formData = new FormData();
     formData.append("file", bulkForm.file);
 
@@ -142,16 +145,24 @@ function ProductList() {
       const res = await uploadExcelServ(formData);
       if (res?.data?.statusCode === 200) {
         toast.success("Bulk upload successful!");
-        console.log("Parsed Data:", res?.data);
         setShowBulkModal(false);
         setBulkForm({ name: "", file: null });
-        handleGetProductFunc(); 
+        handleGetProductFunc();
       } else {
-        toast.error("Upload failed");
+        toast.error(res?.data?.message || "Upload failed");
       }
     } catch (err) {
-      toast.error("Server Error during upload");
-      console.error(err);
+      console.error("Bulk Upload Error:", err);
+      const errorData = err?.response?.data;
+      if (errorData?.statusCode === 409) {
+        toast.error(errorData.message);
+      } else if (errorData?.message) {
+        toast.error(errorData.message);
+      } else {
+        toast.error("Server Error during upload");
+      }
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -779,12 +790,25 @@ function ProductList() {
                       <button
                         className="btn btn-primary w-100 mt-3"
                         onClick={handleBulkUpload}
-                        disabled={!bulkForm.name || !bulkForm.file}
+                        disabled={
+                          isUploading || !bulkForm.name || !bulkForm.file
+                        }
                         style={{
                           opacity: !bulkForm.name || !bulkForm.file ? 0.6 : 1,
                         }}
                       >
-                        Upload
+                        {isUploading ? (
+                          <>
+                            <span
+                              className="spinner-border spinner-border-sm me-2"
+                              role="status"
+                              aria-hidden="true"
+                            ></span>
+                            Uploading...
+                          </>
+                        ) : (
+                          "Upload"
+                        )}
                       </button>
                     </div>
                   </div>

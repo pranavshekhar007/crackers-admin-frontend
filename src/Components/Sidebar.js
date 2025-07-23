@@ -24,10 +24,10 @@ function Sidebar({ selectedMenu, selectedItem }) {
           name: "Orders",
           path: "/order-list",
         },
-        {
-          name: "Bulk Order",
-          path: "/bulk-order-list",
-        },
+        // {
+        //   name: "Bulk Order",
+        //   path: "/bulk-order-list",
+        // },
       ],
     },
     
@@ -87,10 +87,10 @@ function Sidebar({ selectedMenu, selectedItem }) {
       menuIcon: "https://cdn-icons-png.flaticon.com/128/535/535188.png",
       menu: "Location Management",
       subMenu: [
-        {
-          name: "Pincode",
-          path: "/pin-code",
-        },
+        // {
+        //   name: "Pincode",
+        //   path: "/pin-code",
+        // },
         {
           name: "States",
           path: "/state-list",
@@ -99,10 +99,10 @@ function Sidebar({ selectedMenu, selectedItem }) {
           name: "City",
           path: "/city-list",
         },
-        {
-          name: "Area",
-          path: "/area",
-        },
+        // {
+        //   name: "Area",
+        //   path: "/area",
+        // },
         {
           name: "Bulk Upload",
           path: "/bulk-upload",

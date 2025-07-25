@@ -56,10 +56,9 @@ function BulkUploadPage() {
             <ul className="text-primary">
               <li>Read and follow instructions carefully while preparing data</li>
               <li>Download and save the sample file to reduce errors</li>
-              <li>For adding bulk products file should be .csv format</li>
-              <li>You can copy image path from media section</li>
+              <li>For adding bulk locations, file should be .csv or .xlsx format</li>
               <li className="fw-bold text-dark">
-                Make sure you entered valid data as per instructions before proceed
+                Make sure you entered valid data as per instructions before proceeding
               </li>
             </ul>
           </div>
@@ -82,7 +81,7 @@ function BulkUploadPage() {
               </div>
               <div className="col-md-4 mb-3">
                 <label className="form-label fw-bold">
-                  LOCATION TYPE [PINCODES/CITIES/AREAS]
+                  LOCATION TYPE [STATES/CITIES]
                 </label>
                 <select
                   name="locationType"
@@ -91,10 +90,8 @@ function BulkUploadPage() {
                   onChange={handleChange}
                 >
                   <option value="">Select</option>
-                  <option value="pincodes">pincodes</option>
-                  <option value="states">states</option>
+                  <option value="states">States</option>
                   <option value="cities">Cities</option>
-                  <option value="areas">Areas</option>
                 </select>
               </div>
               <div className="col-md-4 mb-3">

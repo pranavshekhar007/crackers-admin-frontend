@@ -284,9 +284,12 @@ const OrderDetails = () => {
                 </table>
 
                 <div className="d-flex flex-column align-items-end mt-3">
-                <div>Total: ₹{order?.totalAmount}</div>
+                  <div>Total: ₹{order?.totalAmount}</div>
                   <div>deleviryCharge: ₹{order?.deliveryCharge}</div>
-                  <div className="fw-bold">Subtotal: ₹{Number(order?.totalAmount) + Number(order?.deliveryCharge)}</div>
+                  <div className="fw-bold">
+                    Subtotal: ₹
+                    {Number(order?.totalAmount) + Number(order?.deliveryCharge)}
+                  </div>
                 </div>
               </div>
 
@@ -369,7 +372,8 @@ const OrderDetails = () => {
 
                 <div>Transaction ID: #{order?.paymentId || "N/A"}</div>
                 <div>Payment Mode: {order?.modeOfPayment || "-"}</div>
-                <div>Total Paid: ₹{order?.totalAmount || "-"}</div>
+                <div>deleviryCharge: ₹{order?.deliveryCharge || "_"}</div>
+                <div>Total Paid: ₹{Number(order?.totalAmount) + Number(order?.deliveryCharge) || "_"}</div>
 
                 <div className="d-flex align-items-center mt-2">
                   <div className="me-2 fw-medium">
